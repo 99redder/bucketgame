@@ -14,6 +14,8 @@ class TouchHandler {
         this.lastPos = { x: 0, y: 0 };
         this.lastTime = 0;
         this.velocityHistory = [];
+        this.trailElements = [];
+        this.trailInterval = null;
 
         this.bindEvents();
     }
@@ -112,6 +114,9 @@ class TouchHandler {
         // Position element at touch point
         this.positionElement(x, y);
 
+        // Start trail effect
+        this.startTrail();
+
         // Call callback
         if (this.callbacks.onDragStart) {
             this.callbacks.onDragStart(element, { x, y });
@@ -180,6 +185,9 @@ class TouchHandler {
         // Remove dragging class
         element.classList.remove('dragging');
 
+        // Stop trail effect
+        this.stopTrail();
+
         // Reset state
         this.isDragging = false;
         this.currentElement = null;
@@ -188,6 +196,57 @@ class TouchHandler {
         if (this.callbacks.onDragEnd) {
             this.callbacks.onDragEnd(element, endPos, velocity);
         }
+    }
+
+    startTrail() {
+        // Create trail elements periodically
+        this.trailInterval = setInterval(() => {
+            if (!this.currentElement || !this.isDragging) return;
+
+            const rect = this.currentElement.getBoundingClientRect();
+            const trail = this.currentElement.cloneNode(true);
+
+            trail.classList.remove('dragging');
+            trail.classList.add('trail');
+            trail.style.position = 'fixed';
+            trail.style.left = `${rect.left}px`;
+            trail.style.top = `${rect.top}px`;
+            trail.style.width = `${rect.width}px`;
+            trail.style.height = `${rect.height}px`;
+            trail.style.pointerEvents = 'none';
+            trail.style.opacity = '0.6';
+            trail.style.zIndex = '999';
+
+            document.body.appendChild(trail);
+            this.trailElements.push(trail);
+
+            // Remove trail element after animation
+            setTimeout(() => {
+                trail.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                trail.style.opacity = '0';
+                trail.style.transform = 'scale(0.8)';
+
+                setTimeout(() => {
+                    trail.remove();
+                    this.trailElements = this.trailElements.filter(t => t !== trail);
+                }, 300);
+            }, 50);
+        }, 50); // Create a trail element every 50ms
+    }
+
+    stopTrail() {
+        if (this.trailInterval) {
+            clearInterval(this.trailInterval);
+            this.trailInterval = null;
+        }
+
+        // Clean up any remaining trail elements
+        this.trailElements.forEach(trail => {
+            trail.style.transition = 'opacity 0.2s ease';
+            trail.style.opacity = '0';
+            setTimeout(() => trail.remove(), 200);
+        });
+        this.trailElements = [];
     }
 
     // Calculate if the throw is heading toward the bucket

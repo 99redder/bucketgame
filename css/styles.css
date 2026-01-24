@@ -163,6 +163,11 @@ body {
     animation: shrink-into-bucket 0.4s ease-in forwards;
 }
 
+.animal.trail {
+    animation: none !important;
+    filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.2));
+}
+
 /* ===========================================
    Play Area (Middle)
    =========================================== */

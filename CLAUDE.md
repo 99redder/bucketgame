@@ -139,6 +139,11 @@ const response = await fetch(
   - 100ms delay between audio clips for cleanup
   - Automatic fallback to Web Speech API if ElevenLabs fails
   - Enhanced emoji-based logging for easier debugging (🔊 ✅ ⚠️ ❌)
+- Added motion trail effect when dragging animals:
+  - Semi-transparent clones follow the animal during drag
+  - Trail elements fade out and shrink (0.3s animation)
+  - New trail element every 50ms for smooth effect
+  - Automatically cleaned up when drag ends
 - Incremented audio cache version to v6 to force re-download of all voices with Charlotte
 - Service worker cache version incremented to v16
 - CSS now uses network-first strategy (was cache-first) for instant style updates
