@@ -86,8 +86,13 @@ bucketgame/
 
 ## Audio System (audio.js)
 - **SpeechManager class**: Handles ElevenLabs API calls with Web Speech API fallback
+  - Audio fetched from ElevenLabs API and cached in IndexedDB as blobs
+  - Blobs decoded using `audioContext.decodeAudioData()` to AudioBuffer
+  - Playback via Web Audio API BufferSource (more reliable than HTML5 Audio on iOS)
+  - Queue system ensures sequential playback without conflicts
 - **SplashSound class**: Web Audio API synthesized water splash
 - **ClappingSound class**: Web Audio API synthesized applause
+- **BackgroundMusic class**: Web Audio API generated cheerful melody
 
 ### ElevenLabs Integration
 ```javascript
@@ -113,17 +118,29 @@ const response = await fetch(
 - **Network-first** for HTML, JS, and CSS files (to get updates quickly)
 - **Cache-first** for assets (images only)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v16
+- Cache version: v17
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
 - Animal size: 70px (smaller screens) to 90px (iPad Pro)
 - Bucket size: 240px to 300px depending on screen
-- Animal pile uses flexbox with column wrap
+- Animal pile uses absolute positioning in a 3-column grid (9 animals per column)
+  - Animals stay in fixed positions when others are removed (no reflowing)
 
 ## Change Log
 
-### v16 (Current)
+### v17 (Current)
+- **CRITICAL FIX**: Switched from HTML5 Audio elements to Web Audio API for playback
+  - HTML5 Audio elements were unreliable on iOS/iPad for sequential playback
+  - Now using `audioContext.decodeAudioData()` and `BufferSource` for playback
+  - Audio blobs are decoded to AudioBuffer then played through Web Audio API
+  - This is much more reliable on iOS/iPad and fixes "only first name playing" issue
+  - Removed `currentAudio` and `currentAudioUrl` properties (no longer needed)
+  - Added 100ms delay after each audio completes before starting next
+  - More consistent playback across all animals
+- Service worker cache version incremented to v17
+
+### v16
 - Moved animal name speech from pickup to when animal lands in bucket
 - Added large animal display popup that shows for 2 seconds at bottom center
 - Display includes enlarged animal image (180px) with styled name label

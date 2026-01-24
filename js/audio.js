@@ -33,10 +33,6 @@ class SpeechManager {
         this.voice = null;
         this.voices = [];
 
-        // Track currently playing audio to prevent overlaps
-        this.currentAudio = null;
-        this.currentAudioUrl = null;
-
         // Queue system for sequential playback
         this.audioQueue = [];
         this.isPlaying = false;
@@ -259,26 +255,12 @@ class SpeechManager {
         }
     }
 
-    // Create a fresh Audio element from blob and play it
+    // Play audio using Web Audio API (more reliable on iOS than HTML5 Audio)
     async playElevenLabsAudio(text) {
         try {
-            // Stop any currently playing audio first
-            if (this.currentAudio) {
-                try {
-                    this.currentAudio.pause();
-                    this.currentAudio.currentTime = 0;
-                } catch (e) {
-                    // Ignore errors when stopping
-                }
-                if (this.currentAudioUrl) {
-                    try {
-                        URL.revokeObjectURL(this.currentAudioUrl);
-                    } catch (e) {
-                        // Ignore revoke errors
-                    }
-                }
-                this.currentAudio = null;
-                this.currentAudioUrl = null;
+            if (!this.audioContext) {
+                console.warn('No audio context available');
+                return false;
             }
 
             const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
@@ -288,7 +270,7 @@ class SpeechManager {
                 console.log('Blob not in cache, generating for:', text);
                 blob = await this.generateAndCacheAudio(text);
             } else {
-                console.log('Blob found in cache for:', text);
+                console.log('✅ Blob found in cache for:', text);
             }
 
             if (!blob) {
@@ -296,32 +278,31 @@ class SpeechManager {
                 return false;
             }
 
-            // Create a fresh Audio element each time from the blob
-            const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
-            audio.volume = 1.0;
+            // Convert blob to ArrayBuffer
+            const arrayBuffer = await blob.arrayBuffer();
 
-            // Store reference to current audio
-            this.currentAudio = audio;
-            this.currentAudioUrl = audioUrl;
+            // Decode audio data using Web Audio API
+            console.log('🎵 Decoding audio for:', text);
+            const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+            console.log('✅ Audio decoded for:', text);
 
-            // Set up event handlers and play with timeout
+            // Create buffer source and play through Web Audio API
             return new Promise((resolve) => {
                 let resolved = false;
                 let timeoutId = null;
+                let source = null;
 
                 const cleanup = () => {
                     if (!resolved) {
                         resolved = true;
                         if (timeoutId) clearTimeout(timeoutId);
-                        try {
-                            URL.revokeObjectURL(audioUrl);
-                        } catch (e) {
-                            // Ignore
-                        }
-                        if (this.currentAudio === audio) {
-                            this.currentAudio = null;
-                            this.currentAudioUrl = null;
+                        if (source) {
+                            try {
+                                source.stop();
+                                source.disconnect();
+                            } catch (e) {
+                                // Already stopped
+                            }
                         }
                     }
                 };
@@ -333,31 +314,37 @@ class SpeechManager {
                     resolve(false);
                 }, 5000);
 
-                audio.onended = () => {
-                    console.log('Audio ended:', text);
+                // Create buffer source
+                source = this.audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+
+                // Create gain node for volume control
+                const gainNode = this.audioContext.createGain();
+                gainNode.gain.value = 1.0;
+
+                // Connect: source -> gain -> destination
+                source.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                // Handle completion
+                source.onended = () => {
+                    console.log('✅ Audio ended:', text);
                     cleanup();
                     resolve(true);
                 };
 
-                audio.onerror = (e) => {
-                    console.warn('Audio playback error for:', text, e);
+                // Start playback
+                try {
+                    source.start(0);
+                    console.log('🔊 Playing via Web Audio API:', text);
+                } catch (error) {
+                    console.warn('❌ Failed to start audio:', text, error);
                     cleanup();
                     resolve(false);
-                };
-
-                // Start playback
-                audio.play()
-                    .then(() => {
-                        console.log('ElevenLabs audio playing:', text);
-                    })
-                    .catch((error) => {
-                        console.warn('Audio play() failed for:', text, error);
-                        cleanup();
-                        resolve(false);
-                    });
+                }
             });
         } catch (error) {
-            console.warn('ElevenLabs playback exception:', text, error);
+            console.warn('❌ ElevenLabs playback exception:', text, error);
             return false;
         }
     }
@@ -412,9 +399,6 @@ class SpeechManager {
 
         console.log('🔊 PLAYING:', animalName, '(Queue remaining:', this.audioQueue.length + ')');
 
-        // Small delay to ensure previous audio is fully cleaned up
-        await new Promise(resolve => setTimeout(resolve, 150));
-
         // FORCE audio context resume (critical for iOS/iPad)
         if (this.audioContext) {
             try {
@@ -450,6 +434,9 @@ class SpeechManager {
             // Wait for speech synthesis to complete
             await new Promise(resolve => setTimeout(resolve, 2000));
         }
+
+        // Small delay before processing next item (gives audio system time to clean up)
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Process next item in queue
         this.processAudioQueue();
