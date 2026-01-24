@@ -1,5 +1,5 @@
 // Service Worker for Animal Bucket Game PWA
-const CACHE_VERSION = 'v15';
+const CACHE_VERSION = 'v16';
 const CACHE_NAME = `bucket-game-${CACHE_VERSION}`;
 
 // Assets to cache for offline functionality (relative paths for GitHub Pages compatibility)
@@ -94,10 +94,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // Network-first for HTML and JS files (to get updates quickly)
+    // Network-first for HTML, JS, and CSS files (to get updates quickly)
     if (event.request.mode === 'navigate' ||
         url.pathname.endsWith('.html') ||
-        url.pathname.endsWith('.js')) {
+        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.css')) {
         event.respondWith(
             fetch(event.request)
                 .then(response => {
