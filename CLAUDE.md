@@ -112,7 +112,7 @@ const response = await fetch(
 - **Network-first** for HTML and JS files (to get updates quickly)
 - **Cache-first** for assets (images, CSS)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v9
+- Cache version: v11
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
@@ -122,7 +122,18 @@ const response = await fetch(
 
 ## Change Log
 
-### v9 (Current)
+### v11 (Current)
+- Added audio cache versioning to invalidate old robotic voices
+- Cache key now includes version (e.g., "Cat_v3") to force fresh downloads
+- All animals will now use the new Charlotte voice
+
+### v10
+- Fixed audio not playing for all animals by properly preloading all voices
+- Start button now shows loading progress (e.g., "Loading voices (5/27)...")
+- Game only starts after all 27 audio clips are cached
+- Changed preloadAudio to use Promise.all instead of fire-and-forget
+
+### v9
 - Increased ElevenLabs voice volume using Web Audio API gain (2x amplification)
 
 ### v8

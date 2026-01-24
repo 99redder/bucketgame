@@ -13,7 +13,8 @@ const ELEVENLABS_CONFIG = {
     // '21m00Tcm4TlvDq8ikWAM' - "Rachel" - warm female
     // 'Xb7hH8MSUJpSbSDYk0k2' - "Alice" - young female
     // 'pFZP5JQG7iQjIQuC4Bku' - "Lily" - warm British female
-    modelId: 'eleven_multilingual_v2'  // Most natural sounding model
+    modelId: 'eleven_multilingual_v2',  // Most natural sounding model
+    cacheVersion: 'v3'  // Increment this to force re-download of all audio
 };
 // ==============================================
 
@@ -72,8 +73,8 @@ class SpeechManager {
     }
 
     // Pre-load audio for all animals and congratulations
-    async preloadAudio() {
-        if (!this.isElevenLabsEnabled) return;
+    async preloadAudio(onProgress) {
+        if (!this.isElevenLabsEnabled) return { loaded: 0, total: 0 };
 
         const phrases = [
             'Cat', 'Dog', 'Elephant', 'Lion', 'Monkey', 'Pig',
@@ -83,15 +84,38 @@ class SpeechManager {
             'Snake', 'Dolphin', 'Kangaroo', 'Congratulations!'
         ];
 
-        // Load in background without blocking
-        phrases.forEach(phrase => {
-            this.generateAndCacheAudio(phrase);
+        let loaded = 0;
+        const total = phrases.length;
+
+        // Load all audio and wait for completion
+        const promises = phrases.map(async (phrase) => {
+            try {
+                await this.generateAndCacheAudio(phrase);
+                loaded++;
+                if (onProgress) {
+                    onProgress(loaded, total);
+                }
+                console.log(`Cached audio ${loaded}/${total}: ${phrase}`);
+            } catch (error) {
+                console.warn(`Failed to cache: ${phrase}`, error);
+                loaded++;
+                if (onProgress) {
+                    onProgress(loaded, total);
+                }
+            }
         });
+
+        await Promise.all(promises);
+        console.log(`Audio preloading complete: ${this.audioCache.size} items cached`);
+        return { loaded: this.audioCache.size, total };
     }
 
     async generateAndCacheAudio(text) {
-        if (this.audioCache.has(text)) {
-            return this.audioCache.get(text);
+        // Include cache version in key to invalidate old audio
+        const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
+
+        if (this.audioCache.has(cacheKey)) {
+            return this.audioCache.get(cacheKey);
         }
 
         try {
@@ -126,7 +150,7 @@ class SpeechManager {
             const audio = new Audio(audioUrl);
             audio.volume = 1.0;  // Max volume
 
-            this.audioCache.set(text, audio);
+            this.audioCache.set(cacheKey, audio);
             return audio;
         } catch (error) {
             console.warn('ElevenLabs generation failed:', error);
@@ -136,7 +160,8 @@ class SpeechManager {
 
     async playElevenLabsAudio(text) {
         try {
-            let audio = this.audioCache.get(text);
+            const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
+            let audio = this.audioCache.get(cacheKey);
 
             if (!audio) {
                 audio = await this.generateAndCacheAudio(text);

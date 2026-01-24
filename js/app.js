@@ -17,7 +17,7 @@ const gameContainer = document.getElementById('game-container');
 const playAgainButton = document.getElementById('play-again-button');
 
 // Initialize the application
-function initApp() {
+async function initApp() {
     // Register service worker for PWA
     registerServiceWorker();
 
@@ -30,6 +30,26 @@ function initApp() {
 
     // Set up event listeners
     setupEventListeners();
+
+    // Disable start button and show loading
+    startButton.disabled = true;
+    startButton.textContent = 'Loading voices...';
+    startButton.style.opacity = '0.7';
+
+    // Preload all audio before enabling the game
+    try {
+        await speechManager.preloadAudio((loaded, total) => {
+            startButton.textContent = `Loading voices (${loaded}/${total})...`;
+        });
+        console.log('All audio preloaded successfully');
+    } catch (error) {
+        console.warn('Audio preload error:', error);
+    }
+
+    // Enable start button
+    startButton.disabled = false;
+    startButton.textContent = 'Start Game!';
+    startButton.style.opacity = '1';
 
     console.log('Animal Bucket Game initialized');
 }
