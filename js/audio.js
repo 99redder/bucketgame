@@ -37,6 +37,10 @@ class SpeechManager {
         this.currentAudio = null;
         this.currentAudioUrl = null;
 
+        // Queue system for sequential playback
+        this.audioQueue = [];
+        this.isPlaying = false;
+
         this.init();
     }
 
@@ -369,35 +373,66 @@ class SpeechManager {
     }
 
     async speakAnimalName(animalName) {
-        console.log('Speaking animal name:', animalName);
+        console.log('🔊 QUEUE: Adding to queue:', animalName);
+
+        // Add to queue
+        this.audioQueue.push(animalName);
+
+        // Start processing queue if not already playing
+        if (!this.isPlaying) {
+            this.processAudioQueue();
+        }
+    }
+
+    async processAudioQueue() {
+        if (this.audioQueue.length === 0) {
+            this.isPlaying = false;
+            return;
+        }
+
+        this.isPlaying = true;
+        const animalName = this.audioQueue.shift();
+
+        console.log('🔊 PLAYING:', animalName, '(Queue remaining:', this.audioQueue.length + ')');
+
+        // Small delay to ensure previous audio is fully cleaned up
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Ensure audio context is running
         if (this.audioContext && this.audioContext.state === 'suspended') {
             try {
                 await this.audioContext.resume();
-                console.log('Audio context resumed');
+                console.log('✅ Audio context resumed');
             } catch (e) {
-                console.warn('Failed to resume audio context:', e);
+                console.warn('❌ Failed to resume audio context:', e);
             }
         }
+
+        let played = false;
 
         if (this.isElevenLabsEnabled) {
             try {
-                const played = await this.playElevenLabsAudio(animalName);
+                played = await this.playElevenLabsAudio(animalName);
                 if (played) {
-                    console.log('Successfully played:', animalName);
-                    return;
+                    console.log('✅ Successfully played:', animalName);
                 } else {
-                    console.warn('playElevenLabsAudio returned false for:', animalName);
+                    console.warn('⚠️ playElevenLabsAudio returned false for:', animalName);
                 }
             } catch (error) {
-                console.warn('ElevenLabs failed, using fallback:', error);
+                console.warn('❌ ElevenLabs failed:', error);
             }
         }
 
-        // Fallback to Web Speech API
-        console.log('Using fallback speech for:', animalName);
-        this.speakFallback(animalName, { rate: 0.8, pitch: 1.15 });
+        // Fallback to Web Speech API if ElevenLabs failed
+        if (!played) {
+            console.log('🔊 Using fallback speech for:', animalName);
+            this.speakFallback(animalName, { rate: 0.8, pitch: 1.15 });
+            // Wait a bit for speech synthesis
+            await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+
+        // Process next item in queue
+        this.processAudioQueue();
     }
 
     async speakCongratulations() {

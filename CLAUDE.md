@@ -129,12 +129,16 @@ const response = await fetch(
 - Display includes enlarged animal image (180px) with styled name label
 - Pop-bounce animation for the animal image
 - Smooth fade-in/fade-out transitions
-- Added "Start Over" button in top right corner to reset game at any time
-- Fixed audio playback reliability issues:
-  - Only one audio plays at a time to prevent browser limitations
-  - Audio context is resumed before each playback (critical for iOS/iPad)
-  - Better promise handling and error recovery
-  - Enhanced logging for debugging
+- Added "Start Over" button in top right corner:
+  - Larger size (1.6rem font, more padding)
+  - Red background (gradient) with white text
+  - More prominent for easy access
+- Implemented audio queue system for reliable speech:
+  - Queue ensures audio plays sequentially without conflicts
+  - Audio context is resumed before each playback (iOS/iPad fix)
+  - 100ms delay between audio clips for cleanup
+  - Automatic fallback to Web Speech API if ElevenLabs fails
+  - Enhanced emoji-based logging for easier debugging (🔊 ✅ ⚠️ ❌)
 - Animals now stay in fixed positions when one is removed (no reflowing)
 
 ### v15
