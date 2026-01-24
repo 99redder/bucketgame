@@ -225,6 +225,50 @@ body {
 }
 
 /* ===========================================
+   Animal Display (shown when landed)
+   =========================================== */
+#animal-display {
+    position: fixed;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 150;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#animal-display.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+#animal-display img {
+    width: 180px;
+    height: 180px;
+    filter: drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.4));
+    animation: pop-bounce 0.5s ease-out;
+}
+
+#animal-display .animal-name-text {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--text-light);
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5),
+                 -1px -1px 0px rgba(0, 0, 0, 0.3),
+                 1px -1px 0px rgba(0, 0, 0, 0.3),
+                 -1px 1px 0px rgba(0, 0, 0, 0.3),
+                 1px 1px 0px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+    padding: 15px 40px;
+    border-radius: 50px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ===========================================
    Celebration Screen
    =========================================== */
 #celebration {
@@ -330,6 +374,21 @@ body {
     0% { transform: scale(1); }
     50% { transform: scale(1.2); }
     100% { transform: scale(1.1); }
+}
+
+@keyframes pop-bounce {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+    70% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* ===========================================

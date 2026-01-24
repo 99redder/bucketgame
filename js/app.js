@@ -140,11 +140,7 @@ function startGame() {
     // Initialize touch handler
     touchHandler = new TouchHandler({
         onDragStart: (element, pos) => {
-            // Speak the animal name when picked up
-            const displayName = element.dataset.displayName;
-            if (displayName) {
-                speechManager.speakAnimalName(displayName);
-            }
+            // Animal picked up
         },
         onDragMove: (element, pos, velocity) => {
             // Could add trail effect here

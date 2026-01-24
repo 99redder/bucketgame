@@ -75,13 +75,14 @@ bucketgame/
 1. **Drag-and-throw mechanics** - Touch/drag animals and release to throw
 2. **Parabolic throw animation** - Animals arc through the air with rotation
 3. **Bucket landing detection** - Determines if animal lands in bucket
-4. **Speech on landing** - ElevenLabs speaks animal name (with Web Speech fallback)
-5. **Water splash effect** - Visual and audio splash when animal enters bucket
-6. **Confetti celebration** - Canvas-based confetti when all animals collected
-7. **Clapping sound** - Web Audio API generated applause
-8. **"Congratulations!" voice** - Spoken at end of game
-9. **Play Again button** - Resets game state
-10. **PWA auto-update** - Service worker uses network-first and notifies on update
+4. **Speech on landing** - ElevenLabs speaks animal name when it lands in bucket (with Web Speech fallback)
+5. **Animal display popup** - Shows large animal image with name label at bottom center for 2 seconds
+6. **Water splash effect** - Visual and audio splash when animal enters bucket
+7. **Confetti celebration** - Canvas-based confetti when all animals collected
+8. **Clapping sound** - Web Audio API generated applause
+9. **"Congratulations!" voice** - Spoken at end of game
+10. **Play Again button** - Resets game state
+11. **PWA auto-update** - Service worker uses network-first and notifies on update
 
 ## Audio System (audio.js)
 - **SpeechManager class**: Handles ElevenLabs API calls with Web Speech API fallback
@@ -122,7 +123,14 @@ const response = await fetch(
 
 ## Change Log
 
-### v15 (Current)
+### v16 (Current)
+- Moved animal name speech from pickup to when animal lands in bucket
+- Added large animal display popup that shows for 2 seconds at bottom center
+- Display includes enlarged animal image (180px) with styled name label
+- Pop-bounce animation for the animal image
+- Smooth fade-in/fade-out transitions
+
+### v15
 - Fixed audio reliability issues causing missing or robotic voices
 - Store audio blobs instead of Audio elements (cloneNode was unreliable)
 - Added IndexedDB persistence so voices survive page refreshes

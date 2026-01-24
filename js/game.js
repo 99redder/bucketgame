@@ -50,6 +50,7 @@ class Game {
         this.progressElement = document.getElementById('animals-remaining');
         this.celebrationElement = document.getElementById('celebration');
         this.confettiCanvas = document.getElementById('confetti-canvas');
+        this.animalDisplay = document.getElementById('animal-display');
     }
 
     init() {
@@ -178,6 +179,12 @@ class Game {
         triggerBucketSplash();
         this.splashSound.play();
 
+        // Speak the animal name
+        this.speechManager.speakAnimalName(displayName);
+
+        // Show large animal display with name
+        this.showAnimalDisplay(animalName, displayName);
+
         // Add landing animation class
         element.classList.add('landing');
 
@@ -197,6 +204,29 @@ class Game {
                 this.onGameComplete();
             }
         }, 400);
+    }
+
+    showAnimalDisplay(animalName, displayName) {
+        // Set the animal image
+        const img = this.animalDisplay.querySelector('img');
+        img.src = `images/animals/${animalName}.svg`;
+        img.alt = displayName;
+
+        // Set the animal name text
+        const nameText = this.animalDisplay.querySelector('.animal-name-text');
+        nameText.textContent = displayName;
+
+        // Show the display
+        this.animalDisplay.classList.remove('hidden');
+        this.animalDisplay.classList.add('show');
+
+        // Hide after 2 seconds
+        setTimeout(() => {
+            this.animalDisplay.classList.remove('show');
+            setTimeout(() => {
+                this.animalDisplay.classList.add('hidden');
+            }, 300); // Wait for fade out animation
+        }, 2000);
     }
 
     onGameComplete() {
