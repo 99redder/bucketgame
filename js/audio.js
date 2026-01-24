@@ -14,9 +14,9 @@ const ELEVENLABS_CONFIG = {
     // 'Xb7hH8MSUJpSbSDYk0k2' - "Alice" - young female
     // 'pFZP5JQG7iQjIQuC4Bku' - "Lily" - warm British female
     modelId: 'eleven_multilingual_v2',  // Most natural sounding model
-    cacheVersion: 'v6',  // Increment this to force re-download of all audio
+    cacheVersion: 'v7',  // Increment this to force re-download of all audio
     dbName: 'AnimalBucketAudioCache',
-    dbVersion: 1
+    dbVersion: 2  // Increment to clear old database and force fresh download
 };
 // ==============================================
 
@@ -84,15 +84,22 @@ class SpeechManager {
 
             request.onsuccess = () => {
                 this.db = request.result;
-                console.log('IndexedDB initialized for audio cache');
+                console.log('IndexedDB initialized for audio cache (version ' + ELEVENLABS_CONFIG.dbVersion + ')');
                 resolve();
             };
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                if (!db.objectStoreNames.contains('audio')) {
-                    db.createObjectStore('audio', { keyPath: 'key' });
+
+                // Delete old object store if it exists (clears all old data)
+                if (db.objectStoreNames.contains('audio')) {
+                    console.log('Clearing old audio cache database');
+                    db.deleteObjectStore('audio');
                 }
+
+                // Create fresh object store
+                console.log('Creating fresh audio cache database');
+                db.createObjectStore('audio', { keyPath: 'key' });
             };
         });
     }
@@ -298,13 +305,15 @@ class SpeechManager {
             this.currentAudio = audio;
             this.currentAudioUrl = audioUrl;
 
-            // Set up event handlers before playing
+            // Set up event handlers and play with timeout
             return new Promise((resolve) => {
                 let resolved = false;
+                let timeoutId = null;
 
                 const cleanup = () => {
                     if (!resolved) {
                         resolved = true;
+                        if (timeoutId) clearTimeout(timeoutId);
                         try {
                             URL.revokeObjectURL(audioUrl);
                         } catch (e) {
@@ -316,6 +325,13 @@ class SpeechManager {
                         }
                     }
                 };
+
+                // Timeout after 5 seconds
+                timeoutId = setTimeout(() => {
+                    console.warn('⏱️ Audio playback timeout for:', text);
+                    cleanup();
+                    resolve(false);
+                }, 5000);
 
                 audio.onended = () => {
                     console.log('Audio ended:', text);
@@ -387,6 +403,7 @@ class SpeechManager {
     async processAudioQueue() {
         if (this.audioQueue.length === 0) {
             this.isPlaying = false;
+            console.log('🏁 Queue finished');
             return;
         }
 
@@ -396,13 +413,16 @@ class SpeechManager {
         console.log('🔊 PLAYING:', animalName, '(Queue remaining:', this.audioQueue.length + ')');
 
         // Small delay to ensure previous audio is fully cleaned up
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 150));
 
-        // Ensure audio context is running
-        if (this.audioContext && this.audioContext.state === 'suspended') {
+        // FORCE audio context resume (critical for iOS/iPad)
+        if (this.audioContext) {
             try {
-                await this.audioContext.resume();
-                console.log('✅ Audio context resumed');
+                if (this.audioContext.state !== 'running') {
+                    console.log('⚡ Resuming audio context (state was:', this.audioContext.state + ')');
+                    await this.audioContext.resume();
+                    console.log('✅ Audio context now:', this.audioContext.state);
+                }
             } catch (e) {
                 console.warn('❌ Failed to resume audio context:', e);
             }
@@ -419,7 +439,7 @@ class SpeechManager {
                     console.warn('⚠️ playElevenLabsAudio returned false for:', animalName);
                 }
             } catch (error) {
-                console.warn('❌ ElevenLabs failed:', error);
+                console.warn('❌ ElevenLabs exception:', error);
             }
         }
 
@@ -427,8 +447,8 @@ class SpeechManager {
         if (!played) {
             console.log('🔊 Using fallback speech for:', animalName);
             this.speakFallback(animalName, { rate: 0.8, pitch: 1.15 });
-            // Wait a bit for speech synthesis
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Wait for speech synthesis to complete
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         // Process next item in queue
@@ -641,7 +661,7 @@ class BackgroundMusic {
         this.masterGain = null;
         this.scheduledNotes = [];
         this.loopInterval = null;
-        this.volume = 0.06; // Very subtle so voices are clear
+        this.volume = 0.03; // Very subtle so voices are clear (reduced from 0.06)
     }
 
     init() {

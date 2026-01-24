@@ -144,7 +144,18 @@ const response = await fetch(
   - Trail elements fade out and shrink (0.3s animation)
   - New trail element every 50ms for smooth effect
   - Automatically cleaned up when drag ends
-- Incremented audio cache version to v6 to force re-download of all voices with Charlotte
+- Fixed robotic voices permanently:
+  - Incremented IndexedDB database version to 2 (clears ALL old cached audio)
+  - Incremented audio cache version to v7
+  - Database upgrade deletes old object store and creates fresh one
+  - Forces complete re-download of all 27 animal voices with Charlotte
+- Improved audio playback reliability:
+  - Added 5 second timeout to prevent hanging audio promises
+  - More aggressive audio context resume (checks state before every playback)
+  - Increased delay between audio clips (150ms instead of 100ms)
+  - Extended fallback speech wait time (2s instead of 1.5s)
+  - Better logging with queue finish indicator
+- Reduced background music volume from 6% to 3% for clearer animal voices
 - Service worker cache version incremented to v16
 - CSS now uses network-first strategy (was cache-first) for instant style updates
 - Animals now stay in fixed positions when one is removed (no reflowing)
