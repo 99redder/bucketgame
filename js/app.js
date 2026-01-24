@@ -16,6 +16,7 @@ const startScreen = document.getElementById('start-screen');
 const startButton = document.getElementById('start-button');
 const gameContainer = document.getElementById('game-container');
 const playAgainButton = document.getElementById('play-again-button');
+const startOverButton = document.getElementById('start-over-button');
 
 // Initialize the application
 async function initApp() {
@@ -102,6 +103,13 @@ function setupEventListeners() {
     // Play again button
     playAgainButton.addEventListener('click', restartGame);
     playAgainButton.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        restartGame();
+    });
+
+    // Start over button
+    startOverButton.addEventListener('click', restartGame);
+    startOverButton.addEventListener('touchend', (e) => {
         e.preventDefault();
         restartGame();
     });

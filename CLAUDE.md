@@ -129,6 +129,7 @@ const response = await fetch(
 - Display includes enlarged animal image (180px) with styled name label
 - Pop-bounce animation for the animal image
 - Smooth fade-in/fade-out transitions
+- Added "Start Over" button in top right corner to reset game at any time
 
 ### v15
 - Fixed audio reliability issues causing missing or robotic voices

@@ -225,6 +225,33 @@ body {
 }
 
 /* ===========================================
+   Start Over Button
+   =========================================== */
+#start-over-button {
+    position: fixed;
+    top: env(safe-area-inset-top, 20px);
+    right: env(safe-area-inset-right, 20px);
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 1.2rem;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(180deg, #FF9800 0%, #F57C00 100%);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 50;
+}
+
+#start-over-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ===========================================
    Animal Display (shown when landed)
    =========================================== */
 #animal-display {
