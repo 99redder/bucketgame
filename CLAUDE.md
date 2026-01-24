@@ -139,6 +139,7 @@ const response = await fetch(
   - 100ms delay between audio clips for cleanup
   - Automatic fallback to Web Speech API if ElevenLabs fails
   - Enhanced emoji-based logging for easier debugging (🔊 ✅ ⚠️ ❌)
+- Incremented audio cache version to v6 to force re-download of all voices with Charlotte
 - Animals now stay in fixed positions when one is removed (no reflowing)
 
 ### v15
