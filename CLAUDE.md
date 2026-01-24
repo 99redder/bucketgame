@@ -112,7 +112,7 @@ const response = await fetch(
 - **Network-first** for HTML and JS files (to get updates quickly)
 - **Cache-first** for assets (images, CSS)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v12
+- Cache version: v13
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
@@ -122,10 +122,14 @@ const response = await fetch(
 
 ## Change Log
 
-### v12 (Current)
+### v13 (Current)
+- Fixed voices not playing by removing Web Audio API gain node conflict
+- Now clones audio elements for reliable playback
+- Lowered background music volume from 15% to 6%
+
+### v12
 - Added background music using Web Audio API
 - Cheerful, kid-friendly melody that loops during gameplay
-- Volume set to 15% to not overpower animal voices
 - Music starts when game begins
 
 ### v11

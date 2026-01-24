@@ -168,19 +168,11 @@ class SpeechManager {
             }
 
             if (audio) {
-                audio.currentTime = 0;
+                // Clone the audio element for reliable playback
+                const audioClone = audio.cloneNode();
+                audioClone.volume = 1.0;
 
-                // Use Web Audio API to amplify the sound
-                if (this.audioContext && !audio._connectedToGain) {
-                    const source = this.audioContext.createMediaElementSource(audio);
-                    const gainNode = this.audioContext.createGain();
-                    gainNode.gain.value = 2.0;  // Amplify 2x louder
-                    source.connect(gainNode);
-                    gainNode.connect(this.audioContext.destination);
-                    audio._connectedToGain = true;
-                }
-
-                await audio.play();
+                await audioClone.play();
                 console.log('ElevenLabs audio played:', text);
                 return true;
             }
@@ -438,7 +430,7 @@ class BackgroundMusic {
         this.masterGain = null;
         this.scheduledNotes = [];
         this.loopInterval = null;
-        this.volume = 0.15; // Keep it subtle so voices are clear
+        this.volume = 0.06; // Very subtle so voices are clear
     }
 
     init() {
