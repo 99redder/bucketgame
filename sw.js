@@ -1,5 +1,5 @@
 // Service Worker for Animal Bucket Game PWA
-const CACHE_VERSION = 'v13';
+const CACHE_VERSION = 'v14';
 const CACHE_NAME = `bucket-game-${CACHE_VERSION}`;
 
 // Assets to cache for offline functionality (relative paths for GitHub Pages compatibility)

@@ -181,11 +181,6 @@ class Game {
         // Add landing animation class
         element.classList.add('landing');
 
-        // Speak the animal name (slight delay after splash)
-        setTimeout(() => {
-            this.speechManager.speakAnimalName(displayName);
-        }, 200);
-
         // Remove from remaining animals
         this.remainingAnimals = this.remainingAnimals.filter(a => a.name !== animalName);
 

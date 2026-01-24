@@ -14,7 +14,7 @@ const ELEVENLABS_CONFIG = {
     // 'Xb7hH8MSUJpSbSDYk0k2' - "Alice" - young female
     // 'pFZP5JQG7iQjIQuC4Bku' - "Lily" - warm British female
     modelId: 'eleven_multilingual_v2',  // Most natural sounding model
-    cacheVersion: 'v3'  // Increment this to force re-download of all audio
+    cacheVersion: 'v4'  // Increment this to force re-download of all audio
 };
 // ==============================================
 
