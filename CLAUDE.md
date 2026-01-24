@@ -110,10 +110,10 @@ const response = await fetch(
 ```
 
 ## Service Worker Strategy
-- **Network-first** for HTML and JS files (to get updates quickly)
-- **Cache-first** for assets (images, CSS)
+- **Network-first** for HTML, JS, and CSS files (to get updates quickly)
+- **Cache-first** for assets (images only)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v15
+- Cache version: v16
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
