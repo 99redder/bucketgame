@@ -7,6 +7,7 @@
 let speechManager;
 let clappingSound;
 let splashSound;
+let backgroundMusic;
 let game;
 let touchHandler;
 
@@ -27,6 +28,8 @@ async function initApp() {
     clappingSound.init();
     splashSound = new SplashSound();
     splashSound.init();
+    backgroundMusic = new BackgroundMusic();
+    backgroundMusic.init();
 
     // Set up event listeners
     setupEventListeners();
@@ -117,6 +120,7 @@ function unlockAudio() {
     speechManager.unlock();
     clappingSound.unlock();
     splashSound.unlock();
+    backgroundMusic.unlock();
     console.log('Audio unlocked');
 }
 
@@ -125,6 +129,9 @@ function startGame() {
     // Hide start screen, show game
     startScreen.classList.add('hidden');
     gameContainer.classList.remove('hidden');
+
+    // Start background music
+    backgroundMusic.start();
 
     // Initialize game
     game = new Game(speechManager, clappingSound, splashSound);

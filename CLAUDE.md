@@ -112,7 +112,7 @@ const response = await fetch(
 - **Network-first** for HTML and JS files (to get updates quickly)
 - **Cache-first** for assets (images, CSS)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v11
+- Cache version: v12
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
@@ -122,7 +122,13 @@ const response = await fetch(
 
 ## Change Log
 
-### v11 (Current)
+### v12 (Current)
+- Added background music using Web Audio API
+- Cheerful, kid-friendly melody that loops during gameplay
+- Volume set to 15% to not overpower animal voices
+- Music starts when game begins
+
+### v11
 - Added audio cache versioning to invalidate old robotic voices
 - Cache key now includes version (e.g., "Cat_v3") to force fresh downloads
 - All animals will now use the new Charlotte voice

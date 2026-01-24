@@ -429,3 +429,162 @@ class ClappingSound {
         });
     }
 }
+
+// Background music generator using Web Audio API
+class BackgroundMusic {
+    constructor() {
+        this.audioContext = null;
+        this.isPlaying = false;
+        this.masterGain = null;
+        this.scheduledNotes = [];
+        this.loopInterval = null;
+        this.volume = 0.15; // Keep it subtle so voices are clear
+    }
+
+    init() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.masterGain = this.audioContext.createGain();
+            this.masterGain.gain.value = this.volume;
+            this.masterGain.connect(this.audioContext.destination);
+        } catch (e) {
+            console.warn('Web Audio API not available for music');
+        }
+    }
+
+    unlock() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+    }
+
+    // Convert note name to frequency
+    noteToFreq(note) {
+        const notes = {
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+            'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46,
+            'G5': 783.99, 'A5': 880.00
+        };
+        return notes[note] || 440;
+    }
+
+    // Play a single note with soft attack
+    playNote(freq, startTime, duration, type = 'sine') {
+        if (!this.audioContext || !this.isPlaying) return;
+
+        const osc = this.audioContext.createOscillator();
+        const noteGain = this.audioContext.createGain();
+
+        osc.type = type;
+        osc.frequency.value = freq;
+
+        // Soft envelope for gentle sound
+        noteGain.gain.setValueAtTime(0, startTime);
+        noteGain.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+        noteGain.gain.linearRampToValueAtTime(0.2, startTime + duration * 0.5);
+        noteGain.gain.linearRampToValueAtTime(0, startTime + duration);
+
+        osc.connect(noteGain);
+        noteGain.connect(this.masterGain);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.1);
+    }
+
+    // Play a chord
+    playChord(notes, startTime, duration) {
+        notes.forEach(note => {
+            this.playNote(this.noteToFreq(note), startTime, duration, 'sine');
+        });
+    }
+
+    // Play the melody loop
+    playMelodyLoop() {
+        if (!this.audioContext || !this.isPlaying) return;
+
+        const now = this.audioContext.currentTime;
+        const tempo = 0.4; // Time per beat in seconds
+
+        // Simple cheerful melody - kid-friendly tune
+        const melody = [
+            { note: 'C5', time: 0, dur: 0.3 },
+            { note: 'E5', time: 1, dur: 0.3 },
+            { note: 'G5', time: 2, dur: 0.3 },
+            { note: 'E5', time: 3, dur: 0.3 },
+            { note: 'C5', time: 4, dur: 0.3 },
+            { note: 'D5', time: 5, dur: 0.3 },
+            { note: 'E5', time: 6, dur: 0.5 },
+            { note: 'D5', time: 7, dur: 0.3 },
+            { note: 'C5', time: 8, dur: 0.3 },
+            { note: 'G4', time: 9, dur: 0.3 },
+            { note: 'A4', time: 10, dur: 0.3 },
+            { note: 'B4', time: 11, dur: 0.3 },
+            { note: 'C5', time: 12, dur: 0.5 },
+            { note: 'E5', time: 13, dur: 0.3 },
+            { note: 'D5', time: 14, dur: 0.3 },
+            { note: 'C5', time: 15, dur: 0.5 }
+        ];
+
+        // Background chords (soft pads)
+        const chords = [
+            { notes: ['C4', 'E4', 'G4'], time: 0, dur: 1.5 },
+            { notes: ['C4', 'E4', 'G4'], time: 4, dur: 1.5 },
+            { notes: ['G4', 'B4', 'D5'], time: 8, dur: 1.5 },
+            { notes: ['C4', 'E4', 'G4'], time: 12, dur: 1.5 }
+        ];
+
+        // Play melody notes
+        melody.forEach(({ note, time, dur }) => {
+            this.playNote(this.noteToFreq(note), now + time * tempo, dur, 'triangle');
+        });
+
+        // Play background chords (quieter)
+        chords.forEach(({ notes, time, dur }) => {
+            notes.forEach(note => {
+                const osc = this.audioContext.createOscillator();
+                const noteGain = this.audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = this.noteToFreq(note);
+                noteGain.gain.setValueAtTime(0, now + time * tempo);
+                noteGain.gain.linearRampToValueAtTime(0.08, now + time * tempo + 0.1);
+                noteGain.gain.linearRampToValueAtTime(0.05, now + time * tempo + dur);
+                noteGain.gain.linearRampToValueAtTime(0, now + time * tempo + dur + 0.2);
+                osc.connect(noteGain);
+                noteGain.connect(this.masterGain);
+                osc.start(now + time * tempo);
+                osc.stop(now + time * tempo + dur + 0.3);
+            });
+        });
+
+        // Schedule next loop
+        const loopDuration = 16 * tempo * 1000; // 16 beats
+        this.loopInterval = setTimeout(() => this.playMelodyLoop(), loopDuration);
+    }
+
+    start() {
+        if (!this.audioContext) return;
+        if (this.isPlaying) return;
+
+        this.unlock();
+        this.isPlaying = true;
+        this.playMelodyLoop();
+        console.log('Background music started');
+    }
+
+    stop() {
+        this.isPlaying = false;
+        if (this.loopInterval) {
+            clearTimeout(this.loopInterval);
+            this.loopInterval = null;
+        }
+        console.log('Background music stopped');
+    }
+
+    setVolume(vol) {
+        this.volume = Math.max(0, Math.min(1, vol));
+        if (this.masterGain) {
+            this.masterGain.gain.value = this.volume;
+        }
+    }
+}
