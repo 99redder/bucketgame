@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Shell -->
+  <ellipse cx="50" cy="55" rx="35" ry="28" fill="#228B22"/>
+  <!-- Shell pattern -->
+  <ellipse cx="50" cy="50" rx="15" ry="12" fill="#2E8B57" stroke="#1B5E20" stroke-width="2"/>
+  <path d="M35,45 Q30,55 35,65" stroke="#1B5E20" stroke-width="2" fill="none"/>
+  <path d="M65,45 Q70,55 65,65" stroke="#1B5E20" stroke-width="2" fill="none"/>
+  <path d="M40,38 Q50,32 60,38" stroke="#1B5E20" stroke-width="2" fill="none"/>
+  <path d="M40,72 Q50,78 60,72" stroke="#1B5E20" stroke-width="2" fill="none"/>
+  <!-- Shell rim -->
+  <ellipse cx="50" cy="55" rx="35" ry="28" fill="none" stroke="#6B8E23" stroke-width="4"/>
+  <!-- Head -->
+  <ellipse cx="20" cy="50" rx="14" ry="12" fill="#9ACD32"/>
+  <!-- Eyes -->
+  <circle cx="15" cy="46" r="4" fill="white"/>
+  <circle cx="25" cy="46" r="4" fill="white"/>
+  <circle cx="16" cy="47" r="2.5" fill="#1a1a1a"/>
+  <circle cx="26" cy="47" r="2.5" fill="#1a1a1a"/>
+  <!-- Mouth -->
+  <path d="M12,54 Q18,58 24,54" stroke="#333" stroke-width="1.5" fill="none"/>
+  <!-- Legs -->
+  <ellipse cx="25" cy="75" rx="10" ry="6" fill="#9ACD32"/>
+  <ellipse cx="75" cy="75" rx="10" ry="6" fill="#9ACD32"/>
+  <ellipse cx="25" cy="38" rx="8" ry="5" fill="#9ACD32"/>
+  <ellipse cx="75" cy="38" rx="8" ry="5" fill="#9ACD32"/>
+  <!-- Tail -->
+  <ellipse cx="88" cy="55" rx="6" ry="4" fill="#9ACD32"/>
+</svg>

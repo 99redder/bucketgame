@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Body -->
+  <ellipse cx="50" cy="55" rx="28" ry="35" fill="#1a1a1a"/>
+  <!-- White belly -->
+  <ellipse cx="50" cy="60" rx="18" ry="28" fill="white"/>
+  <!-- Head -->
+  <circle cx="50" cy="25" r="20" fill="#1a1a1a"/>
+  <!-- White face patches -->
+  <ellipse cx="40" cy="28" rx="6" ry="8" fill="white"/>
+  <ellipse cx="60" cy="28" rx="6" ry="8" fill="white"/>
+  <!-- Eyes -->
+  <circle cx="40" cy="26" r="4" fill="white"/>
+  <circle cx="60" cy="26" r="4" fill="white"/>
+  <circle cx="41" cy="27" r="2.5" fill="#1a1a1a"/>
+  <circle cx="61" cy="27" r="2.5" fill="#1a1a1a"/>
+  <!-- Beak -->
+  <polygon points="50,32 44,40 56,40" fill="#FF9F43"/>
+  <line x1="44" y1="38" x2="56" y2="38" stroke="#E8890C" stroke-width="1"/>
+  <!-- Wings -->
+  <ellipse cx="22" cy="55" rx="8" ry="20" fill="#1a1a1a"/>
+  <ellipse cx="78" cy="55" rx="8" ry="20" fill="#1a1a1a"/>
+  <!-- Feet -->
+  <ellipse cx="38" cy="90" rx="10" ry="5" fill="#FF9F43"/>
+  <ellipse cx="62" cy="90" rx="10" ry="5" fill="#FF9F43"/>
+</svg>

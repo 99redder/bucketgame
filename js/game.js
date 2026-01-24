@@ -4,9 +4,10 @@
  */
 
 class Game {
-    constructor(speechManager, clappingSound) {
+    constructor(speechManager, clappingSound, splashSound) {
         this.speechManager = speechManager;
         this.clappingSound = clappingSound;
+        this.splashSound = splashSound;
 
         // Animal data
         this.allAnimals = [
@@ -21,7 +22,21 @@ class Game {
             { name: 'frog', displayName: 'Frog' },
             { name: 'horse', displayName: 'Horse' },
             { name: 'orca', displayName: 'Orca' },
-            { name: 'chicken', displayName: 'Chicken' }
+            { name: 'chicken', displayName: 'Chicken' },
+            { name: 'crocodile', displayName: 'Crocodile' },
+            { name: 'panda', displayName: 'Panda' },
+            { name: 'shark', displayName: 'Shark' },
+            { name: 'polarbear', displayName: 'Polar Bear' },
+            { name: 'giraffe', displayName: 'Giraffe' },
+            { name: 'zebra', displayName: 'Zebra' },
+            { name: 'penguin', displayName: 'Penguin' },
+            { name: 'owl', displayName: 'Owl' },
+            { name: 'rabbit', displayName: 'Rabbit' },
+            { name: 'tiger', displayName: 'Tiger' },
+            { name: 'turtle', displayName: 'Turtle' },
+            { name: 'snake', displayName: 'Snake' },
+            { name: 'dolphin', displayName: 'Dolphin' },
+            { name: 'kangaroo', displayName: 'Kangaroo' }
         ];
 
         this.remainingAnimals = [];
@@ -159,14 +174,17 @@ class Game {
     }
 
     onAnimalLanded(element, animalName, displayName) {
-        // Trigger bucket splash
+        // Trigger bucket splash animation and sound
         triggerBucketSplash();
+        this.splashSound.play();
 
         // Add landing animation class
         element.classList.add('landing');
 
-        // Speak the animal name
-        this.speechManager.speakAnimalName(displayName);
+        // Speak the animal name (slight delay after splash)
+        setTimeout(() => {
+            this.speechManager.speakAnimalName(displayName);
+        }, 200);
 
         // Remove from remaining animals
         this.remainingAnimals = this.remainingAnimals.filter(a => a.name !== animalName);

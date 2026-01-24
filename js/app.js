@@ -6,6 +6,7 @@
 // Global instances
 let speechManager;
 let clappingSound;
+let splashSound;
 let game;
 let touchHandler;
 
@@ -24,6 +25,8 @@ function initApp() {
     speechManager = new SpeechManager();
     clappingSound = new ClappingSound();
     clappingSound.init();
+    splashSound = new SplashSound();
+    splashSound.init();
 
     // Set up event listeners
     setupEventListeners();
@@ -31,16 +34,36 @@ function initApp() {
     console.log('Animal Bucket Game initialized');
 }
 
-// Register service worker
+// Register service worker with auto-update support
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
+        // Use relative path for GitHub Pages compatibility
+        navigator.serviceWorker.register('./sw.js')
             .then(registration => {
                 console.log('Service Worker registered:', registration.scope);
+
+                // Check for updates periodically
+                setInterval(() => {
+                    registration.update();
+                }, 60000); // Check every minute
             })
             .catch(error => {
                 console.log('Service Worker registration failed:', error);
             });
+
+        // Listen for service worker updates and auto-reload
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'SW_UPDATED') {
+                console.log('App updated! Reloading...');
+                window.location.reload();
+            }
+        });
+
+        // Also handle controller change (when new SW takes over)
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('New service worker activated, reloading...');
+            window.location.reload();
+        });
     }
 }
 
@@ -73,6 +96,7 @@ function setupEventListeners() {
 function unlockAudio() {
     speechManager.unlock();
     clappingSound.unlock();
+    splashSound.unlock();
     console.log('Audio unlocked');
 }
 
@@ -83,7 +107,7 @@ function startGame() {
     gameContainer.classList.remove('hidden');
 
     // Initialize game
-    game = new Game(speechManager, clappingSound);
+    game = new Game(speechManager, clappingSound, splashSound);
     game.init();
 
     // Initialize touch handler

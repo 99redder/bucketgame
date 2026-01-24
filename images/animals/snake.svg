@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Body coils -->
+  <path d="M75,80 Q90,70 85,55 Q80,40 65,45 Q50,50 45,65 Q40,80 25,75 Q10,70 15,55 Q20,40 35,35 Q50,30 55,20"
+        fill="none" stroke="#228B22" stroke-width="14" stroke-linecap="round"/>
+  <!-- Pattern on body -->
+  <path d="M75,80 Q90,70 85,55 Q80,40 65,45 Q50,50 45,65 Q40,80 25,75 Q10,70 15,55 Q20,40 35,35 Q50,30 55,20"
+        fill="none" stroke="#32CD32" stroke-width="8" stroke-linecap="round" stroke-dasharray="8 12"/>
+  <!-- Belly (lighter) -->
+  <path d="M75,82 Q88,72 84,58" fill="none" stroke="#90EE90" stroke-width="6" stroke-linecap="round"/>
+  <path d="M44,67 Q38,82 24,77" fill="none" stroke="#90EE90" stroke-width="6" stroke-linecap="round"/>
+  <path d="M16,53 Q22,38 36,34" fill="none" stroke="#90EE90" stroke-width="6" stroke-linecap="round"/>
+  <!-- Head -->
+  <ellipse cx="58" cy="18" rx="12" ry="10" fill="#228B22"/>
+  <!-- Eyes -->
+  <circle cx="52" cy="14" r="4" fill="#FFFF00"/>
+  <ellipse cx="52" cy="14" rx="1.5" ry="3" fill="#1a1a1a"/>
+  <circle cx="62" cy="14" r="4" fill="#FFFF00"/>
+  <ellipse cx="62" cy="14" rx="1.5" ry="3" fill="#1a1a1a"/>
+  <!-- Tongue -->
+  <path d="M68,20 L78,18 L82,15 M78,18 L82,22" stroke="#FF0000" stroke-width="2" fill="none"/>
+  <!-- Nostrils -->
+  <circle cx="65" cy="20" r="1.5" fill="#1a1a1a"/>
+</svg>

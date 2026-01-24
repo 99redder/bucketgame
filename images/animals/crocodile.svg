@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Body -->
+  <ellipse cx="50" cy="55" rx="35" ry="18" fill="#228B22"/>
+  <!-- Tail -->
+  <path d="M82,55 Q95,50 98,55 Q95,60 82,55" fill="#228B22"/>
+  <path d="M85,55 Q92,52 95,55 Q92,58 85,55" fill="#1B6B1B"/>
+  <!-- Head/Snout -->
+  <ellipse cx="18" cy="52" rx="18" ry="12" fill="#228B22"/>
+  <ellipse cx="8" cy="52" rx="10" ry="8" fill="#228B22"/>
+  <!-- Upper jaw bumps -->
+  <circle cx="5" cy="48" r="3" fill="#1B6B1B"/>
+  <circle cx="12" cy="46" r="3" fill="#1B6B1B"/>
+  <!-- Eyes -->
+  <ellipse cx="22" cy="45" rx="6" ry="5" fill="#ADFF2F"/>
+  <ellipse cx="22" cy="45" rx="3" ry="4" fill="#333"/>
+  <!-- Nostrils -->
+  <circle cx="3" cy="50" r="2" fill="#1B6B1B"/>
+  <circle cx="3" cy="54" r="2" fill="#1B6B1B"/>
+  <!-- Teeth -->
+  <polygon points="8,58 10,62 12,58" fill="white"/>
+  <polygon points="14,58 16,62 18,58" fill="white"/>
+  <polygon points="5,58 7,62 9,58" fill="white"/>
+  <!-- Scales on back -->
+  <path d="M30,40 L35,35 L40,40" fill="#1B6B1B"/>
+  <path d="M42,38 L47,32 L52,38" fill="#1B6B1B"/>
+  <path d="M54,40 L59,35 L64,40" fill="#1B6B1B"/>
+  <path d="M66,42 L71,37 L76,42" fill="#1B6B1B"/>
+  <!-- Belly -->
+  <ellipse cx="50" cy="62" rx="25" ry="8" fill="#9ACD32"/>
+  <!-- Legs -->
+  <ellipse cx="30" cy="70" rx="8" ry="5" fill="#228B22"/>
+  <ellipse cx="70" cy="70" rx="8" ry="5" fill="#228B22"/>
+</svg>

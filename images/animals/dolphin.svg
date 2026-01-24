@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Body -->
+  <ellipse cx="50" cy="50" rx="38" ry="20" fill="#4682B4"/>
+  <!-- Belly -->
+  <ellipse cx="45" cy="58" rx="28" ry="10" fill="#E0E8F0"/>
+  <!-- Snout/Beak -->
+  <ellipse cx="12" cy="45" rx="14" ry="8" fill="#4682B4"/>
+  <ellipse cx="10" cy="50" rx="10" ry="5" fill="#E0E8F0"/>
+  <!-- Eye -->
+  <circle cx="28" cy="42" r="5" fill="white"/>
+  <circle cx="29" cy="43" r="3" fill="#1a1a1a"/>
+  <circle cx="30" cy="41" r="1" fill="white"/>
+  <!-- Dorsal fin -->
+  <path d="M55,30 L62,15 Q65,12 60,25 L55,30" fill="#4682B4"/>
+  <!-- Tail flukes -->
+  <path d="M85,45 Q95,35 98,45 Q95,42 90,50 Q95,58 98,50 Q95,60 85,50" fill="#4682B4"/>
+  <!-- Pectoral fin -->
+  <ellipse cx="40" cy="62" rx="12" ry="5" fill="#4682B4" transform="rotate(-20 40 62)"/>
+  <!-- Smile -->
+  <path d="M5,48 Q12,54 22,50" stroke="#333" stroke-width="1.5" fill="none"/>
+  <!-- Blowhole -->
+  <ellipse cx="42" cy="35" rx="3" ry="2" fill="#3A6A94"/>
+</svg>
