@@ -14,14 +14,18 @@ const ELEVENLABS_CONFIG = {
     // 'Xb7hH8MSUJpSbSDYk0k2' - "Alice" - young female
     // 'pFZP5JQG7iQjIQuC4Bku' - "Lily" - warm British female
     modelId: 'eleven_multilingual_v2',  // Most natural sounding model
-    cacheVersion: 'v4'  // Increment this to force re-download of all audio
+    cacheVersion: 'v5',  // Increment this to force re-download of all audio
+    dbName: 'AnimalBucketAudioCache',
+    dbVersion: 1
 };
 // ==============================================
 
 class SpeechManager {
     constructor() {
-        this.audioCache = new Map();
+        // Store blobs instead of Audio elements for reliable playback
+        this.blobCache = new Map();
         this.audioContext = null;
+        this.db = null;
         this.isElevenLabsEnabled = ELEVENLABS_CONFIG.apiKey !== 'YOUR_API_KEY_HERE';
 
         // Fallback to Web Speech API if no ElevenLabs key
@@ -32,7 +36,7 @@ class SpeechManager {
         this.init();
     }
 
-    init() {
+    async init() {
         // Initialize audio context for playback
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -46,13 +50,83 @@ class SpeechManager {
             speechSynthesis.onvoiceschanged = () => this.loadVoices();
         }
 
+        // Initialize IndexedDB for persistent audio cache
+        try {
+            await this.initDB();
+        } catch (e) {
+            console.warn('IndexedDB not available, using memory cache only');
+        }
+
         if (this.isElevenLabsEnabled) {
             console.log('ElevenLabs TTS enabled');
-            // Pre-generate common phrases
-            this.preloadAudio();
         } else {
             console.log('Using fallback Web Speech API (add ElevenLabs API key for better voice)');
         }
+    }
+
+    // Initialize IndexedDB for persistent audio storage
+    async initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(ELEVENLABS_CONFIG.dbName, ELEVENLABS_CONFIG.dbVersion);
+
+            request.onerror = () => {
+                console.warn('Failed to open IndexedDB');
+                reject(request.error);
+            };
+
+            request.onsuccess = () => {
+                this.db = request.result;
+                console.log('IndexedDB initialized for audio cache');
+                resolve();
+            };
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('audio')) {
+                    db.createObjectStore('audio', { keyPath: 'key' });
+                }
+            };
+        });
+    }
+
+    // Get audio blob from IndexedDB
+    async getFromDB(key) {
+        if (!this.db) return null;
+
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.db.transaction(['audio'], 'readonly');
+                const store = transaction.objectStore('audio');
+                const request = store.get(key);
+
+                request.onsuccess = () => {
+                    resolve(request.result?.blob || null);
+                };
+                request.onerror = () => {
+                    resolve(null);
+                };
+            } catch (e) {
+                resolve(null);
+            }
+        });
+    }
+
+    // Save audio blob to IndexedDB
+    async saveToDB(key, blob) {
+        if (!this.db) return;
+
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.db.transaction(['audio'], 'readwrite');
+                const store = transaction.objectStore('audio');
+                store.put({ key, blob });
+
+                transaction.oncomplete = () => resolve();
+                transaction.onerror = () => resolve();
+            } catch (e) {
+                resolve();
+            }
+        });
     }
 
     loadVoices() {
@@ -106,18 +180,28 @@ class SpeechManager {
         });
 
         await Promise.all(promises);
-        console.log(`Audio preloading complete: ${this.audioCache.size} items cached`);
-        return { loaded: this.audioCache.size, total };
+        console.log(`Audio preloading complete: ${this.blobCache.size} items cached`);
+        return { loaded: this.blobCache.size, total };
     }
 
     async generateAndCacheAudio(text) {
         // Include cache version in key to invalidate old audio
         const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
 
-        if (this.audioCache.has(cacheKey)) {
-            return this.audioCache.get(cacheKey);
+        // Check memory cache first
+        if (this.blobCache.has(cacheKey)) {
+            return this.blobCache.get(cacheKey);
         }
 
+        // Check IndexedDB cache
+        const cachedBlob = await this.getFromDB(cacheKey);
+        if (cachedBlob) {
+            this.blobCache.set(cacheKey, cachedBlob);
+            console.log(`Loaded from IndexedDB: ${text}`);
+            return cachedBlob;
+        }
+
+        // Fetch from ElevenLabs API
         try {
             const response = await fetch(
                 `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_CONFIG.voiceId}`,
@@ -146,33 +230,46 @@ class SpeechManager {
             }
 
             const audioBlob = await response.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            audio.volume = 1.0;  // Max volume
 
-            this.audioCache.set(cacheKey, audio);
-            return audio;
+            // Store blob in memory cache
+            this.blobCache.set(cacheKey, audioBlob);
+
+            // Persist to IndexedDB for future sessions
+            await this.saveToDB(cacheKey, audioBlob);
+
+            return audioBlob;
         } catch (error) {
             console.warn('ElevenLabs generation failed:', error);
             return null;
         }
     }
 
+    // Create a fresh Audio element from blob and play it
     async playElevenLabsAudio(text) {
         try {
             const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
-            let audio = this.audioCache.get(cacheKey);
+            let blob = this.blobCache.get(cacheKey);
 
-            if (!audio) {
-                audio = await this.generateAndCacheAudio(text);
+            if (!blob) {
+                blob = await this.generateAndCacheAudio(text);
             }
 
-            if (audio) {
-                // Clone the audio element for reliable playback
-                const audioClone = audio.cloneNode();
-                audioClone.volume = 1.0;
+            if (blob) {
+                // Create a fresh Audio element each time from the blob
+                const audioUrl = URL.createObjectURL(blob);
+                const audio = new Audio(audioUrl);
+                audio.volume = 1.0;
 
-                await audioClone.play();
+                // Clean up blob URL after playback
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                };
+                audio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    console.warn('Audio playback error for:', text);
+                };
+
+                await audio.play();
                 console.log('ElevenLabs audio played:', text);
                 return true;
             }

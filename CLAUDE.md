@@ -112,7 +112,7 @@ const response = await fetch(
 - **Network-first** for HTML and JS files (to get updates quickly)
 - **Cache-first** for assets (images, CSS)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v14
+- Cache version: v15
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
@@ -122,7 +122,15 @@ const response = await fetch(
 
 ## Change Log
 
-### v14 (Current)
+### v15 (Current)
+- Fixed audio reliability issues causing missing or robotic voices
+- Store audio blobs instead of Audio elements (cloneNode was unreliable)
+- Added IndexedDB persistence so voices survive page refreshes
+- Fresh Audio element created for each playback (more reliable)
+- Proper blob URL cleanup after playback to prevent memory leaks
+- Incremented audio cache version to v5
+
+### v14
 - Animal name is now spoken when picked up (instead of when landing in bucket)
 - Incremented audio cache version to v4 to force fresh voice downloads
 - All old robotic voices will be re-downloaded with Charlotte voice
