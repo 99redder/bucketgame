@@ -1,0 +1,21 @@
+{
+    "name": "Animal Bucket Game",
+    "short_name": "BucketGame",
+    "description": "A fun educational game where kids throw animals into a bucket",
+    "start_url": "/index.html",
+    "scope": "/",
+    "display": "fullscreen",
+    "orientation": "landscape",
+    "background_color": "#87CEEB",
+    "theme_color": "#87CEEB",
+    "lang": "en",
+    "categories": ["games", "kids", "education"],
+    "icons": [
+        {
+            "src": "images/icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

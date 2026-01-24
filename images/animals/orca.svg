@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Body -->
+  <ellipse cx="50" cy="55" rx="38" ry="22" fill="#1a1a1a"/>
+  <!-- Belly (white) -->
+  <ellipse cx="50" cy="62" rx="28" ry="12" fill="white"/>
+  <!-- Head shape -->
+  <ellipse cx="22" cy="52" rx="18" ry="15" fill="#1a1a1a"/>
+  <!-- White eye patch -->
+  <ellipse cx="28" cy="48" rx="8" ry="5" fill="white"/>
+  <!-- Eye -->
+  <circle cx="30" cy="48" r="3" fill="#1a1a1a"/>
+  <!-- Dorsal fin -->
+  <path d="M55,33 L60,15 Q62,12 58,20 L55,33" fill="#1a1a1a"/>
+  <!-- Tail flukes -->
+  <path d="M85,50 Q95,40 98,50 Q95,48 90,55 Q95,60 98,55 Q95,65 85,55" fill="#1a1a1a"/>
+  <!-- Pectoral fin -->
+  <ellipse cx="35" cy="65" rx="12" ry="5" fill="#1a1a1a" transform="rotate(-20 35 65)"/>
+  <!-- White chin/throat -->
+  <ellipse cx="15" cy="58" rx="8" ry="6" fill="white"/>
+  <!-- Smile line -->
+  <path d="M8,52 Q12,56 18,54" fill="none" stroke="#333" stroke-width="1"/>
+  <!-- Gray saddle patch -->
+  <ellipse cx="65" cy="45" rx="10" ry="6" fill="#4a4a4a"/>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Body -->
+  <ellipse cx="55" cy="58" rx="28" ry="22" fill="#8B4513"/>
+  <!-- Neck -->
+  <path d="M35,55 Q25,40 30,25" fill="#8B4513"/>
+  <ellipse cx="32" cy="45" rx="12" ry="18" fill="#8B4513"/>
+  <!-- Head -->
+  <ellipse cx="28" cy="28" rx="15" ry="12" fill="#8B4513"/>
+  <!-- Snout -->
+  <ellipse cx="18" cy="32" rx="10" ry="8" fill="#A0522D"/>
+  <!-- Eye -->
+  <circle cx="30" cy="25" r="4" fill="white"/>
+  <circle cx="31" cy="26" r="2.5" fill="#333"/>
+  <!-- Nostrils -->
+  <ellipse cx="12" cy="32" rx="2" ry="3" fill="#333"/>
+  <ellipse cx="16" cy="34" rx="2" ry="3" fill="#333"/>
+  <!-- Ear -->
+  <ellipse cx="35" cy="18" rx="4" ry="8" fill="#8B4513"/>
+  <ellipse cx="35" cy="18" rx="2" ry="5" fill="#D2691E"/>
+  <!-- Mane -->
+  <path d="M38,18 Q42,25 38,35 Q35,45 40,55" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/>
+  <!-- Tail -->
+  <path d="M82,55 Q95,50 92,65 Q88,80 95,85" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/>
+  <!-- Legs hint -->
+  <rect x="35" y="75" width="8" height="15" rx="3" fill="#6B3510"/>
+  <rect x="48" y="75" width="8" height="15" rx="3" fill="#6B3510"/>
+  <rect x="62" y="75" width="8" height="15" rx="3" fill="#6B3510"/>
+  <rect x="75" y="75" width="8" height="15" rx="3" fill="#6B3510"/>
+  <!-- White blaze -->
+  <path d="M28,20 Q26,28 22,32" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+</svg>
