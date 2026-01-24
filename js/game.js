@@ -104,6 +104,19 @@ class Game {
         // Stagger the wobble animation
         div.style.animationDelay = `${index * 0.1}s`;
 
+        // Give each animal a fixed position so they don't reflow when others are removed
+        // Position them in a grid-like pattern
+        const animalsPerColumn = 9; // 3 columns of 9 animals each (27 total)
+        const column = Math.floor(index / animalsPerColumn);
+        const row = index % animalsPerColumn;
+
+        const animalSize = 70; // Base size from CSS
+        const gap = 8; // Gap from CSS
+
+        div.style.position = 'absolute';
+        div.style.left = `${column * (animalSize + gap)}px`;
+        div.style.top = `${row * (animalSize + gap) + 10}px`; // 10px padding from top
+
         return div;
     }
 

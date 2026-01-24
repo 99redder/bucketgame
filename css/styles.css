@@ -111,14 +111,9 @@ body {
    Animal Pile (Left Side)
    =========================================== */
 #animal-pile {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
+    position: relative;
     overflow: hidden;
+    padding: 10px;
 }
 
 .animal {
