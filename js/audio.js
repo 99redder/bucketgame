@@ -33,6 +33,10 @@ class SpeechManager {
         this.voice = null;
         this.voices = [];
 
+        // Track currently playing audio to prevent overlaps
+        this.currentAudio = null;
+        this.currentAudioUrl = null;
+
         this.init();
     }
 
@@ -247,6 +251,17 @@ class SpeechManager {
     // Create a fresh Audio element from blob and play it
     async playElevenLabsAudio(text) {
         try {
+            // Stop any currently playing audio first
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio.currentTime = 0;
+                if (this.currentAudioUrl) {
+                    URL.revokeObjectURL(this.currentAudioUrl);
+                }
+                this.currentAudio = null;
+                this.currentAudioUrl = null;
+            }
+
             const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
             let blob = this.blobCache.get(cacheKey);
 
@@ -260,13 +275,25 @@ class SpeechManager {
                 const audio = new Audio(audioUrl);
                 audio.volume = 1.0;
 
+                // Store reference to current audio
+                this.currentAudio = audio;
+                this.currentAudioUrl = audioUrl;
+
                 // Clean up blob URL after playback
                 audio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
+                    if (this.currentAudio === audio) {
+                        this.currentAudio = null;
+                        this.currentAudioUrl = null;
+                    }
                 };
                 audio.onerror = () => {
                     URL.revokeObjectURL(audioUrl);
                     console.warn('Audio playback error for:', text);
+                    if (this.currentAudio === audio) {
+                        this.currentAudio = null;
+                        this.currentAudioUrl = null;
+                    }
                 };
 
                 await audio.play();

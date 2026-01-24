@@ -130,6 +130,8 @@ const response = await fetch(
 - Pop-bounce animation for the animal image
 - Smooth fade-in/fade-out transitions
 - Added "Start Over" button in top right corner to reset game at any time
+- Fixed audio playback issue where speech would stop after 2-3 animals
+- Only one audio plays at a time to prevent browser audio limitations
 
 ### v15
 - Fixed audio reliability issues causing missing or robotic voices
