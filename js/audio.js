@@ -134,58 +134,84 @@ class SpeechManager {
     }
 
     async playElevenLabsAudio(text) {
-        let audio = this.audioCache.get(text);
+        try {
+            let audio = this.audioCache.get(text);
 
-        if (!audio) {
-            audio = await this.generateAndCacheAudio(text);
-        }
+            if (!audio) {
+                audio = await this.generateAndCacheAudio(text);
+            }
 
-        if (audio) {
-            audio.currentTime = 0;
-            await audio.play();
-            return true;
+            if (audio) {
+                audio.currentTime = 0;
+                await audio.play();
+                console.log('ElevenLabs audio played:', text);
+                return true;
+            }
+        } catch (error) {
+            console.warn('ElevenLabs playback failed:', error);
         }
         return false;
     }
 
     // Fallback Web Speech API
     speakFallback(text, options = {}) {
-        if (!this.synth) return;
-
-        this.synth.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-
-        if (this.voice) {
-            utterance.voice = this.voice;
+        if (!this.synth) {
+            console.warn('Web Speech API not available');
+            return;
         }
 
-        utterance.rate = options.rate || 0.85;
-        utterance.pitch = options.pitch || 1.1;
-        utterance.volume = options.volume || 1.0;
+        try {
+            this.synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
 
-        this.synth.speak(utterance);
+            if (this.voice) {
+                utterance.voice = this.voice;
+            }
+
+            utterance.rate = options.rate || 0.85;
+            utterance.pitch = options.pitch || 1.1;
+            utterance.volume = options.volume || 1.0;
+
+            this.synth.speak(utterance);
+            console.log('Web Speech API speaking:', text);
+        } catch (error) {
+            console.warn('Web Speech API failed:', error);
+        }
     }
 
     async speakAnimalName(animalName) {
+        console.log('Speaking animal name:', animalName);
+
         if (this.isElevenLabsEnabled) {
-            const played = await this.playElevenLabsAudio(animalName);
-            if (played) return;
+            try {
+                const played = await this.playElevenLabsAudio(animalName);
+                if (played) return;
+            } catch (error) {
+                console.warn('ElevenLabs failed, using fallback:', error);
+            }
         }
 
-        // Fallback
+        // Fallback to Web Speech API
         this.speakFallback(animalName, { rate: 0.8, pitch: 1.15 });
     }
 
     async speakCongratulations() {
-        setTimeout(async () => {
-            if (this.isElevenLabsEnabled) {
+        console.log('Speaking congratulations');
+
+        // Small delay then speak
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        if (this.isElevenLabsEnabled) {
+            try {
                 const played = await this.playElevenLabsAudio('Congratulations!');
                 if (played) return;
+            } catch (error) {
+                console.warn('ElevenLabs congratulations failed:', error);
             }
+        }
 
-            // Fallback
-            this.speakFallback('Congratulations!', { rate: 0.75, pitch: 1.2 });
-        }, 500);
+        // Fallback
+        this.speakFallback('Congratulations!', { rate: 0.75, pitch: 1.2 });
     }
 
     unlock() {
