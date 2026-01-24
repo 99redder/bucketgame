@@ -124,6 +124,7 @@ class SpeechManager {
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
+            audio.volume = 1.0;  // Max volume
 
             this.audioCache.set(text, audio);
             return audio;
@@ -143,6 +144,17 @@ class SpeechManager {
 
             if (audio) {
                 audio.currentTime = 0;
+
+                // Use Web Audio API to amplify the sound
+                if (this.audioContext && !audio._connectedToGain) {
+                    const source = this.audioContext.createMediaElementSource(audio);
+                    const gainNode = this.audioContext.createGain();
+                    gainNode.gain.value = 2.0;  // Amplify 2x louder
+                    source.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    audio._connectedToGain = true;
+                }
+
                 await audio.play();
                 console.log('ElevenLabs audio played:', text);
                 return true;

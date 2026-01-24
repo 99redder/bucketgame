@@ -112,7 +112,7 @@ const response = await fetch(
 - **Network-first** for HTML and JS files (to get updates quickly)
 - **Cache-first** for assets (images, CSS)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v8
+- Cache version: v9
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
@@ -122,7 +122,10 @@ const response = await fetch(
 
 ## Change Log
 
-### v8 (Current)
+### v9 (Current)
+- Increased ElevenLabs voice volume using Web Audio API gain (2x amplification)
+
+### v8
 - Switched to ElevenLabs `eleven_multilingual_v2` model (most natural sounding)
 - Changed voice from Rachel to Charlotte (warmer, more natural)
 - Adjusted voice settings for more expressiveness (stability=0.35, style=0.7)
