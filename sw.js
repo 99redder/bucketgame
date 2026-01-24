@@ -1,33 +1,33 @@
 // Service Worker for Animal Bucket Game PWA
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `bucket-game-${CACHE_VERSION}`;
 
-// Assets to cache for offline functionality
+// Assets to cache for offline functionality (relative paths for GitHub Pages compatibility)
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/css/styles.css',
-    '/js/app.js',
-    '/js/game.js',
-    '/js/animations.js',
-    '/js/audio.js',
-    '/js/touch.js',
+    './',
+    './index.html',
+    './manifest.json',
+    './css/styles.css',
+    './js/app.js',
+    './js/game.js',
+    './js/animations.js',
+    './js/audio.js',
+    './js/touch.js',
     // Animal images
-    '/images/animals/cat.svg',
-    '/images/animals/dog.svg',
-    '/images/animals/elephant.svg',
-    '/images/animals/lion.svg',
-    '/images/animals/monkey.svg',
-    '/images/animals/pig.svg',
-    '/images/animals/cow.svg',
-    '/images/animals/duck.svg',
-    '/images/animals/frog.svg',
-    '/images/animals/horse.svg',
-    '/images/animals/orca.svg',
-    '/images/animals/chicken.svg',
+    './images/animals/cat.svg',
+    './images/animals/dog.svg',
+    './images/animals/elephant.svg',
+    './images/animals/lion.svg',
+    './images/animals/monkey.svg',
+    './images/animals/pig.svg',
+    './images/animals/cow.svg',
+    './images/animals/duck.svg',
+    './images/animals/frog.svg',
+    './images/animals/horse.svg',
+    './images/animals/orca.svg',
+    './images/animals/chicken.svg',
     // Icons
-    '/images/icons/icon.svg'
+    './images/icons/icon.svg'
 ];
 
 // Install event - cache all static assets
@@ -86,7 +86,7 @@ self.addEventListener('fetch', (event) => {
             })
             .catch(() => {
                 // Return offline fallback if available
-                return caches.match('/index.html');
+                return caches.match('./index.html');
             })
     );
 });
