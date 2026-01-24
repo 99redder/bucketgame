@@ -253,10 +253,18 @@ class SpeechManager {
         try {
             // Stop any currently playing audio first
             if (this.currentAudio) {
-                this.currentAudio.pause();
-                this.currentAudio.currentTime = 0;
+                try {
+                    this.currentAudio.pause();
+                    this.currentAudio.currentTime = 0;
+                } catch (e) {
+                    // Ignore errors when stopping
+                }
                 if (this.currentAudioUrl) {
-                    URL.revokeObjectURL(this.currentAudioUrl);
+                    try {
+                        URL.revokeObjectURL(this.currentAudioUrl);
+                    } catch (e) {
+                        // Ignore revoke errors
+                    }
                 }
                 this.currentAudio = null;
                 this.currentAudioUrl = null;
@@ -266,44 +274,72 @@ class SpeechManager {
             let blob = this.blobCache.get(cacheKey);
 
             if (!blob) {
+                console.log('Blob not in cache, generating for:', text);
                 blob = await this.generateAndCacheAudio(text);
+            } else {
+                console.log('Blob found in cache for:', text);
             }
 
-            if (blob) {
-                // Create a fresh Audio element each time from the blob
-                const audioUrl = URL.createObjectURL(blob);
-                const audio = new Audio(audioUrl);
-                audio.volume = 1.0;
+            if (!blob) {
+                console.warn('No blob available for:', text);
+                return false;
+            }
 
-                // Store reference to current audio
-                this.currentAudio = audio;
-                this.currentAudioUrl = audioUrl;
+            // Create a fresh Audio element each time from the blob
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            audio.volume = 1.0;
 
-                // Clean up blob URL after playback
+            // Store reference to current audio
+            this.currentAudio = audio;
+            this.currentAudioUrl = audioUrl;
+
+            // Set up event handlers before playing
+            return new Promise((resolve) => {
+                let resolved = false;
+
+                const cleanup = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        try {
+                            URL.revokeObjectURL(audioUrl);
+                        } catch (e) {
+                            // Ignore
+                        }
+                        if (this.currentAudio === audio) {
+                            this.currentAudio = null;
+                            this.currentAudioUrl = null;
+                        }
+                    }
+                };
+
                 audio.onended = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    if (this.currentAudio === audio) {
-                        this.currentAudio = null;
-                        this.currentAudioUrl = null;
-                    }
-                };
-                audio.onerror = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    console.warn('Audio playback error for:', text);
-                    if (this.currentAudio === audio) {
-                        this.currentAudio = null;
-                        this.currentAudioUrl = null;
-                    }
+                    console.log('Audio ended:', text);
+                    cleanup();
+                    resolve(true);
                 };
 
-                await audio.play();
-                console.log('ElevenLabs audio played:', text);
-                return true;
-            }
+                audio.onerror = (e) => {
+                    console.warn('Audio playback error for:', text, e);
+                    cleanup();
+                    resolve(false);
+                };
+
+                // Start playback
+                audio.play()
+                    .then(() => {
+                        console.log('ElevenLabs audio playing:', text);
+                    })
+                    .catch((error) => {
+                        console.warn('Audio play() failed for:', text, error);
+                        cleanup();
+                        resolve(false);
+                    });
+            });
         } catch (error) {
-            console.warn('ElevenLabs playback failed:', error);
+            console.warn('ElevenLabs playback exception:', text, error);
+            return false;
         }
-        return false;
     }
 
     // Fallback Web Speech API
@@ -335,16 +371,32 @@ class SpeechManager {
     async speakAnimalName(animalName) {
         console.log('Speaking animal name:', animalName);
 
+        // Ensure audio context is running
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            try {
+                await this.audioContext.resume();
+                console.log('Audio context resumed');
+            } catch (e) {
+                console.warn('Failed to resume audio context:', e);
+            }
+        }
+
         if (this.isElevenLabsEnabled) {
             try {
                 const played = await this.playElevenLabsAudio(animalName);
-                if (played) return;
+                if (played) {
+                    console.log('Successfully played:', animalName);
+                    return;
+                } else {
+                    console.warn('playElevenLabsAudio returned false for:', animalName);
+                }
             } catch (error) {
                 console.warn('ElevenLabs failed, using fallback:', error);
             }
         }
 
         // Fallback to Web Speech API
+        console.log('Using fallback speech for:', animalName);
         this.speakFallback(animalName, { rate: 0.8, pitch: 1.15 });
     }
 
