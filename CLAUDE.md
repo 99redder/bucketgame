@@ -140,6 +140,8 @@ const response = await fetch(
   - Automatic fallback to Web Speech API if ElevenLabs fails
   - Enhanced emoji-based logging for easier debugging (🔊 ✅ ⚠️ ❌)
 - Incremented audio cache version to v6 to force re-download of all voices with Charlotte
+- Service worker cache version incremented to v16
+- CSS now uses network-first strategy (was cache-first) for instant style updates
 - Animals now stay in fixed positions when one is removed (no reflowing)
 
 ### v15
