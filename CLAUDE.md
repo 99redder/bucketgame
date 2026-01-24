@@ -14,7 +14,9 @@ A kids' game PWA for iPad where children throw animals into a bucket one at a ti
 
 ## API Keys
 - **ElevenLabs API Key**: `sk_5c7e8c54d69e2f52744bf03cb2545d453d84a5d7479ffd21`
-  - Voice ID: `21m00Tcm4TlvDq8ikWAM` (Rachel - female voice)
+  - Voice ID: `XB0fDUnXU5powFXDhCwa` (Charlotte - warm, natural female voice)
+  - Model: `eleven_multilingual_v2` (most natural sounding)
+  - Voice Settings: stability=0.35, similarity_boost=0.85, style=0.7
 
 ## Deployment
 - Hosted on GitHub Pages
@@ -110,7 +112,7 @@ const response = await fetch(
 - **Network-first** for HTML and JS files (to get updates quickly)
 - **Cache-first** for assets (images, CSS)
 - Automatically claims clients and notifies them to reload on update
-- Cache version: v7
+- Cache version: v8
 
 ## CSS Layout
 - Grid layout: `grid-template-columns: 2fr 2fr 1.5fr` (animal pile | play area | bucket)
@@ -120,7 +122,12 @@ const response = await fetch(
 
 ## Change Log
 
-### v7 (Current)
+### v8 (Current)
+- Switched to ElevenLabs `eleven_multilingual_v2` model (most natural sounding)
+- Changed voice from Rachel to Charlotte (warmer, more natural)
+- Adjusted voice settings for more expressiveness (stability=0.35, style=0.7)
+
+### v7
 - Made animal pile area larger (2fr column instead of 1fr)
 - Reduced animal size to 70px to fit all 26 animals
 - Increased bucket size to 240px

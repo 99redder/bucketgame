@@ -8,12 +8,12 @@
 // ==============================================
 const ELEVENLABS_CONFIG = {
     apiKey: 'sk_5c7e8c54d69e2f52744bf03cb2545d453d84a5d7479ffd21',
-    voiceId: '21m00Tcm4TlvDq8ikWAM',  // "Rachel" - warm female voice
+    voiceId: 'XB0fDUnXU5powFXDhCwa',  // "Charlotte" - warm, natural female voice
     // Alternative voices:
-    // 'EXAVITQu4vr4xnSDxMaL' - "Bella" - soft female
-    // 'MF3mGyEYCl7XYWbV9V6O' - "Elli" - young female
-    // 'jsCqWAovK2LkecY7zXl4' - "Freya" - warm female
-    modelId: 'eleven_monolingual_v1'
+    // '21m00Tcm4TlvDq8ikWAM' - "Rachel" - warm female
+    // 'Xb7hH8MSUJpSbSDYk0k2' - "Alice" - young female
+    // 'pFZP5JQG7iQjIQuC4Bku' - "Lily" - warm British female
+    modelId: 'eleven_multilingual_v2'  // Most natural sounding model
 };
 // ==============================================
 
@@ -108,9 +108,9 @@ class SpeechManager {
                         text: text,
                         model_id: ELEVENLABS_CONFIG.modelId,
                         voice_settings: {
-                            stability: 0.75,
-                            similarity_boost: 0.75,
-                            style: 0.5,
+                            stability: 0.35,        // Lower = more expressive/natural
+                            similarity_boost: 0.85, // Higher = closer to original voice
+                            style: 0.7,             // Higher = more stylized delivery
                             use_speaker_boost: true
                         }
                     })
