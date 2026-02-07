@@ -114,7 +114,7 @@ body {
     position: relative;
     overflow: hidden;
     padding: 10px;
-    padding-top: 90px; /* make room for Back button */
+    padding-top: 140px; /* make more room for Back button */
 }
 
 /* Back to Gordon Game Hub button */
