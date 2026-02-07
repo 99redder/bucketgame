@@ -115,7 +115,9 @@ class Game {
 
         div.style.position = 'absolute';
         div.style.left = `${column * (animalSize + gap)}px`;
-        div.style.top = `${row * (animalSize + gap) + 10}px`; // 10px padding from top
+        // Keep animals below the top-left "Go Back" button area
+        const topOffset = 160;
+        div.style.top = `${row * (animalSize + gap) + topOffset}px`;
 
         return div;
     }
