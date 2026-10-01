@@ -29,9 +29,17 @@
 <body>
     <!-- Start Screen -->
     <div id="start-screen">
-        <h1>Animal Bucket Game</h1>
-        <p>Throw the animals into the bucket!</p>
-        <button id="start-button">Tap to Start</button>
+        <div class="start-card">
+            <span class="start-kicker">Gordon’s playroom</span>
+            <div class="start-animals" aria-hidden="true">
+                <img src="images/animals/elephant.svg" alt="">
+                <img src="images/animals/lion.svg" alt="">
+                <img src="images/animals/penguin.svg" alt="">
+            </div>
+            <h1>Animal Bucket</h1>
+            <p>Tap an animal to toss it in!<br>Or drag it into the bucket.</p>
+            <button id="start-button" type="button">Let’s play!</button>
+        </div>
     </div>
 
     <!-- Game Container -->
@@ -67,7 +75,7 @@
 
         <!-- Score/Progress indicator -->
         <div id="progress">
-            <span id="animals-remaining">12</span> animals left
+            <span id="animals-remaining">12</span> friends left
         </div>
 
         <!-- Start Over Button -->

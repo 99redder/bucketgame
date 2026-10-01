@@ -136,6 +136,7 @@ class ReturnAnimation {
 
     complete() {
         // Reset to normal positioning
+        this.element.classList.remove('dragging');
         this.element.style.left = '';
         this.element.style.top = '';
         this.element.style.transform = '';

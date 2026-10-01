@@ -97,6 +97,7 @@ class TouchHandler {
         this.currentPos = { x, y };
         this.lastPos = { x, y };
         this.lastTime = performance.now();
+        this.dragStartedAt = this.lastTime;
         this.velocityHistory = [];
         this.velocity = { x: 0, y: 0 };
 
@@ -182,11 +183,11 @@ class TouchHandler {
         const endPos = { ...this.currentPos };
         const velocity = { ...this.velocity };
 
-        // Remove dragging class
-        element.classList.remove('dragging');
-
         // Stop trail effect
         this.stopTrail();
+
+        const tapped = Math.hypot(endPos.x - this.startPos.x, endPos.y - this.startPos.y) < 12 &&
+            performance.now() - this.dragStartedAt < 500;
 
         // Reset state
         this.isDragging = false;
@@ -194,7 +195,7 @@ class TouchHandler {
 
         // Call callback with final position and velocity
         if (this.callbacks.onDragEnd) {
-            this.callbacks.onDragEnd(element, endPos, velocity);
+            this.callbacks.onDragEnd(element, endPos, velocity, tapped);
         }
     }
 
