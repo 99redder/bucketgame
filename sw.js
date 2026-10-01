@@ -1,8 +1,5 @@
-// Service Worker for Animal Bucket Game PWA
-const CACHE_VERSION = 'v19';
-const CACHE_NAME = `bucket-game-${CACHE_VERSION}`;
-
-// Assets to cache for offline functionality (relative paths for GitHub Pages compatibility)
+// Offline files for Animal Bucket. Updates activate after open games close.
+const CACHE_NAME = 'bucket-game-v20';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -45,103 +42,32 @@ const STATIC_ASSETS = [
     './images/icons/icon.svg'
 ];
 
-// Install event - cache all static assets and take over immediately
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[Service Worker] Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .then(() => {
-                console.log('[Service Worker] Skip waiting and activate immediately');
-                return self.skipWaiting();
-            })
-            .catch(err => {
-                console.log('[Service Worker] Cache failed:', err);
-            })
-    );
+self.addEventListener('install', event => {
+    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS)));
 });
 
-// Activate event - clean up old caches and take control of all pages
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then(keys => Promise.all(
-                keys
-                    .filter(key => key.startsWith('bucket-game-') && key !== CACHE_NAME)
-                    .map(key => {
-                        console.log('[Service Worker] Removing old cache:', key);
-                        return caches.delete(key);
-                    })
-            ))
-            .then(() => {
-                console.log('[Service Worker] Claiming clients and reloading');
-                return self.clients.claim();
-            })
-            .then(() => {
-                // Notify all clients to reload for the update
-                return self.clients.matchAll();
-            })
-            .then(clients => {
-                clients.forEach(client => {
-                    client.postMessage({ type: 'SW_UPDATED' });
-                });
-            })
-    );
+self.addEventListener('activate', event => {
+    event.waitUntil((async () => {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter(key => key.startsWith('bucket-game-') && key !== CACHE_NAME).map(key => caches.delete(key)));
+        await self.clients.claim();
+    })());
 });
 
-// Fetch event - network-first for HTML/JS, cache-first for assets
-self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-
-    // Network-first for HTML, JS, and CSS files (to get updates quickly)
-    if (event.request.mode === 'navigate' ||
-        url.pathname.endsWith('.html') ||
-        url.pathname.endsWith('.js') ||
-        url.pathname.endsWith('.css')) {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    // Cache the fresh response
-                    if (response && response.status === 200) {
-                        const responseToCache = response.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(event.request, responseToCache);
-                        });
-                    }
-                    return response;
-                })
-                .catch(() => {
-                    // Fall back to cache if network fails
-                    return caches.match(event.request);
-                })
-        );
-        return;
-    }
-
-    // Cache-first for other assets (images, CSS)
-    event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                return fetch(event.request)
-                    .then(response => {
-                        if (!response || response.status !== 200 || event.request.method !== 'GET') {
-                            return response;
-                        }
-                        const responseToCache = response.clone();
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(event.request, responseToCache);
-                            });
-                        return response;
-                    });
-            })
-            .catch(() => {
-                return caches.match('./index.html');
-            })
-    );
+self.addEventListener('fetch', event => {
+    const request = event.request;
+    if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+    event.respondWith((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(request, { ignoreSearch: request.mode === 'navigate' });
+        if (cached) return cached;
+        try {
+            const response = await fetch(request);
+            if (response.ok && response.type === 'basic') await cache.put(request, response.clone());
+            return response;
+        } catch (error) {
+            if (request.mode === 'navigate') return new Response('Open Animal Bucket online once to play offline.', { status: 503 });
+            throw error;
+        }
+    })());
 });

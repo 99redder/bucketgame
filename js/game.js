@@ -55,7 +55,9 @@ class Game {
 
     init() {
         // Shuffle and set up animals
-        this.remainingAnimals = this.shuffleArray([...this.allAnimals]);
+        // A short round gives a four-year-old a reachable finish. Each replay
+        // draws a fresh mix from the full set of animals.
+        this.remainingAnimals = this.shuffleArray([...this.allAnimals]).slice(0, 12);
         this.isComplete = false;
         this.isAnimating = false;
 
@@ -63,8 +65,8 @@ class Game {
         this.animalPile.innerHTML = '';
 
         // Create animal elements
-        this.remainingAnimals.forEach((animal, index) => {
-            const element = this.createAnimalElement(animal, index);
+        this.remainingAnimals.forEach((animal) => {
+            const element = this.createAnimalElement(animal);
             this.animalPile.appendChild(element);
         });
 
@@ -87,7 +89,7 @@ class Game {
         return shuffled;
     }
 
-    createAnimalElement(animal, index) {
+    createAnimalElement(animal) {
         const div = document.createElement('div');
         div.className = 'animal wobble';
         div.dataset.animal = animal.name;
@@ -100,24 +102,6 @@ class Game {
         img.draggable = false;
 
         div.appendChild(img);
-
-        // Stagger the wobble animation
-        div.style.animationDelay = `${index * 0.1}s`;
-
-        // Give each animal a fixed position so they don't reflow when others are removed
-        // Position them in a grid-like pattern
-        const animalsPerColumn = 9; // 3 columns of 9 animals each (27 total)
-        const column = Math.floor(index / animalsPerColumn);
-        const row = index % animalsPerColumn;
-
-        const animalSize = 70; // Base size from CSS
-        const gap = 8; // Gap from CSS
-
-        div.style.position = 'absolute';
-        div.style.left = `${column * (animalSize + gap)}px`;
-        // Keep animals below the top-left "Go Back" button area
-        const topOffset = 160;
-        div.style.top = `${row * (animalSize + gap) + topOffset}px`;
 
         return div;
     }
@@ -142,8 +126,13 @@ class Game {
         );
     }
 
-    handleThrow(element, endPos, velocity, touchHandler) {
-        if (this.isAnimating || this.isComplete) return;
+    handleThrow(element, endPos, velocity, touchHandler, tapped = false) {
+        if (this.isAnimating || this.isComplete) {
+            element.classList.remove('dragging');
+            element.style.left = '';
+            element.style.top = '';
+            return;
+        }
 
         const animalName = element.dataset.animal;
         const displayName = element.dataset.displayName;
@@ -156,7 +145,7 @@ class Game {
         };
 
         // Check if the throw is valid (toward the bucket with enough velocity)
-        const isValidThrow = touchHandler.isThrowingTowardBucket(endPos, velocity, bucketRect);
+        const isValidThrow = tapped || touchHandler.isThrowingTowardBucket(endPos, velocity, bucketRect);
 
         if (isValidThrow || this.isOverBucket(endPos.x, endPos.y)) {
             // Successful throw toward bucket

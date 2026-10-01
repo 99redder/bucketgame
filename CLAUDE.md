@@ -4,19 +4,16 @@
 A kids' game PWA for iPad where children throw animals into a bucket one at a time. Each animal landing triggers a voice saying the animal name, and completing all animals triggers a celebration.
 
 ## Tech Stack
-- **Vanilla JavaScript** - No framework, keeps bundle small for PWA
-- **CSS Animations + requestAnimationFrame** - Hybrid approach for smooth animations
-- **ElevenLabs API** - For high-quality text-to-speech (female voice)
-- **Web Speech API** - Fallback TTS if ElevenLabs fails
-- **Web Audio API** - For synthesized splash and clapping sounds
-- **Service Worker** - For offline functionality with auto-update
-- **Landscape orientation** - Locked for optimal throwing experience
+- **Vanilla JavaScript** - No framework or build step
+- **CSS Animations + requestAnimationFrame** - Throwing and celebration effects
+- **Web Speech API** - Animal names on new devices
+- **IndexedDB** - Reuses previously downloaded voice clips on existing devices
+- **Web Audio API** - Splash and clapping sounds
+- **Service Worker** - Offline game assets; updates wait until play closes
+- **Responsive layout** - Both iPad orientations
 
-## API Keys
-- **ElevenLabs API Key**: `sk_5c7e8c54d69e2f52744bf03cb2545d453d84a5d7479ffd21`
-  - Voice ID: `XB0fDUnXU5powFXDhCwa` (Charlotte - warm, natural female voice)
-  - Model: `eleven_multilingual_v2` (most natural sounding)
-  - Voice Settings: stability=0.35, similarity_boost=0.85, style=0.7
+## Credentials
+The previously exposed ElevenLabs key was disabled. Never add service credentials to browser code or project notes.
 
 ## Deployment
 - Hosted on GitHub Pages
@@ -94,25 +91,10 @@ bucketgame/
 - **ClappingSound class**: Web Audio API synthesized applause
 - **BackgroundMusic class**: Web Audio API generated cheerful melody
 
-### ElevenLabs Integration
-```javascript
-const response = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-    {
-        method: 'POST',
-        headers: {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': apiKey
-        },
-        body: JSON.stringify({
-            text: text,
-            model_id: 'eleven_monolingual_v1',
-            voice_settings: { stability: 0.5, similarity_boost: 0.75 }
-        })
-    }
-);
-```
+### Voice playback
+- Previously cached voice clips can play from IndexedDB on an existing device.
+- New devices use the built-in Web Speech API. No voice service credentials or paid API calls run in the browser.
+- The exposed historical key was disabled. Keep future credentials out of client code and project notes.
 
 ## Service Worker Strategy
 - **Network-first** for HTML, JS, and CSS files (to get updates quickly)

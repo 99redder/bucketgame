@@ -3,11 +3,9 @@
  * High-quality text-to-speech for animal names
  */
 
-// ==============================================
-// CONFIGURATION - Add your ElevenLabs API key here
-// ==============================================
+// Previously generated voice clips remain available from the local cache.
+// New devices use the iPad's built-in speech; no service key is shipped to browsers.
 const ELEVENLABS_CONFIG = {
-    apiKey: 'sk_5c7e8c54d69e2f52744bf03cb2545d453d84a5d7479ffd21',
     voiceId: 'XB0fDUnXU5powFXDhCwa',  // "Charlotte" - warm, natural female voice
     // Alternative voices:
     // '21m00Tcm4TlvDq8ikWAM' - "Rachel" - warm female
@@ -26,7 +24,7 @@ class SpeechManager {
         this.blobCache = new Map();
         this.audioContext = null;
         this.db = null;
-        this.isElevenLabsEnabled = ELEVENLABS_CONFIG.apiKey !== 'YOUR_API_KEY_HERE';
+        this.isElevenLabsEnabled = true; // Reuse existing cached clips when available.
 
         // Fallback to Web Speech API if no ElevenLabs key
         this.synth = window.speechSynthesis;
@@ -62,9 +60,9 @@ class SpeechManager {
         }
 
         if (this.isElevenLabsEnabled) {
-            console.log('ElevenLabs TTS enabled');
+            console.log('Cached voice clips available; built-in speech used otherwise');
         } else {
-            console.log('Using fallback Web Speech API (add ElevenLabs API key for better voice)');
+            console.log('Using built-in speech');
         }
     }
 
@@ -157,102 +155,18 @@ class SpeechManager {
         }
     }
 
-    // Pre-load audio for all animals and congratulations
-    async preloadAudio(onProgress) {
-        if (!this.isElevenLabsEnabled) return { loaded: 0, total: 0 };
-
-        const phrases = [
-            'Cat', 'Dog', 'Elephant', 'Lion', 'Monkey', 'Pig',
-            'Cow', 'Duck', 'Frog', 'Horse', 'Orca', 'Chicken',
-            'Crocodile', 'Panda', 'Shark', 'Polar Bear', 'Giraffe',
-            'Zebra', 'Penguin', 'Owl', 'Rabbit', 'Tiger', 'Turtle',
-            'Snake', 'Dolphin', 'Kangaroo', 'Congratulations!'
-        ];
-
-        let loaded = 0;
-        const total = phrases.length;
-
-        // Load all audio and wait for completion
-        const promises = phrases.map(async (phrase) => {
-            try {
-                await this.generateAndCacheAudio(phrase);
-                loaded++;
-                if (onProgress) {
-                    onProgress(loaded, total);
-                }
-                console.log(`Cached audio ${loaded}/${total}: ${phrase}`);
-            } catch (error) {
-                console.warn(`Failed to cache: ${phrase}`, error);
-                loaded++;
-                if (onProgress) {
-                    onProgress(loaded, total);
-                }
-            }
-        });
-
-        await Promise.all(promises);
-        console.log(`Audio preloading complete: ${this.blobCache.size} items cached`);
-        return { loaded: this.blobCache.size, total };
+    // Only use voice clips already stored on this device. Never call a paid API
+    // from a browser or hold up the start screen while audio loads.
+    async preloadAudio() {
+        return { loaded: 0, total: 0 };
     }
 
     async generateAndCacheAudio(text) {
-        // Include cache version in key to invalidate old audio
         const cacheKey = `${text}_${ELEVENLABS_CONFIG.cacheVersion}`;
-
-        // Check memory cache first
-        if (this.blobCache.has(cacheKey)) {
-            return this.blobCache.get(cacheKey);
-        }
-
-        // Check IndexedDB cache
+        if (this.blobCache.has(cacheKey)) return this.blobCache.get(cacheKey);
         const cachedBlob = await this.getFromDB(cacheKey);
-        if (cachedBlob) {
-            this.blobCache.set(cacheKey, cachedBlob);
-            console.log(`Loaded from IndexedDB: ${text}`);
-            return cachedBlob;
-        }
-
-        // Fetch from ElevenLabs API
-        try {
-            const response = await fetch(
-                `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_CONFIG.voiceId}`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'audio/mpeg',
-                        'Content-Type': 'application/json',
-                        'xi-api-key': ELEVENLABS_CONFIG.apiKey
-                    },
-                    body: JSON.stringify({
-                        text: text,
-                        model_id: ELEVENLABS_CONFIG.modelId,
-                        voice_settings: {
-                            stability: 0.35,        // Lower = more expressive/natural
-                            similarity_boost: 0.85, // Higher = closer to original voice
-                            style: 0.7,             // Higher = more stylized delivery
-                            use_speaker_boost: true
-                        }
-                    })
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`ElevenLabs API error: ${response.status}`);
-            }
-
-            const audioBlob = await response.blob();
-
-            // Store blob in memory cache
-            this.blobCache.set(cacheKey, audioBlob);
-
-            // Persist to IndexedDB for future sessions
-            await this.saveToDB(cacheKey, audioBlob);
-
-            return audioBlob;
-        } catch (error) {
-            console.warn('ElevenLabs generation failed:', error);
-            return null;
-        }
+        if (cachedBlob) this.blobCache.set(cacheKey, cachedBlob);
+        return cachedBlob;
     }
 
     // Play audio using Web Audio API (more reliable on iOS than HTML5 Audio)
